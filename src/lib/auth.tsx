@@ -1,66 +1,55 @@
-"use client"
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react"
-import type { User } from "./types"
+import React, { createContext, useContext } from "react";
+import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
+import type { User } from "./types";
 
 interface AuthContextType {
-  user: User | null
-  signIn: () => void
-  signOut: () => void
+    user: User | null;
+    signIn: () => Promise<void>;
+    signOut: () => Promise<void>;
+    status: "loading" | "authenticated" | "unauthenticated";
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  signIn: () => {},
-  signOut: () => {},
-})
+    user: null,
+    signIn: async () => {},
+    signOut: async () => {},
+    status: "unauthenticated",
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-
-  useEffect(() => {
-    // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [])
-
-  const signIn = () => {
-    // Mock sign in - in a real app, this would authenticate with a backend
-    const mockUser: User = {
-      id: "user1",
-      name: "John Doe",
-      email: "john@example.com",
-      role: "user",
-    }
-
-    setUser(mockUser)
-    localStorage.setItem("user", JSON.stringify(mockUser))
-  }
-
-  const signOut = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-  }
-
-  return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  )
+    return <SessionProvider>{children}</SessionProvider>;
 }
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => {
+    const { data: session, status } = useSession();
 
-// For server components
-export async function getCurrentUser(): Promise<User | null> {
-  // In a real app, this would verify the session/token with the backend
-  // For now, we'll just return a mock user
-  return {
-    id: "user1",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "user",
-  }
-}
+    const user = session?.user
+        ? {
+              id: session.user.id as string,
+              name: session.user.name || "",
+              email: session.user.email || "",
+              role: (session.user.role as string) || "user",
+              image: session.user.image || null,
+          }
+        : null;
+
+    const handleSignIn = async () => {
+        await signIn("credentials");
+    };
+
+    const handleSignOut = async () => {
+        await signOut({ callbackUrl: "/" });
+    };
+
+    return {
+        user,
+        signIn: handleSignIn,
+        signOut: handleSignOut,
+        status,
+    };
+};
+
+// Remove the problematic getCurrentUser function that attempts to import from session.ts
+// For server components, import getCurrentUser directly from session.ts instead

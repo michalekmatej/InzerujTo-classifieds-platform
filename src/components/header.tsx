@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Heart } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -11,7 +13,16 @@ import Image from "next/image";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { user, signIn, signOut } = useAuth();
+    const { user, status } = useAuth();
+    const router = useRouter();
+
+    const handleSignIn = () => {
+        router.push("/login");
+    };
+
+    const handleSignOut = async () => {
+        await signOut({ callbackUrl: "/" });
+    };
 
     return (
         <header className="border-b">
@@ -64,12 +75,12 @@ export default function Header() {
                     <div className="flex items-center gap-2">
                         <ModeToggle />
                         {user ? (
-                            <Button variant="outline" onClick={signOut}>
+                            <Button variant="outline" onClick={handleSignOut}>
                                 Odhlásit se
                             </Button>
                         ) : (
                             <Button
-                                onClick={signIn}
+                                onClick={handleSignIn}
                                 className="bg-orange-600 hover:bg-orange-700"
                             >
                                 Přihlásit se
@@ -139,14 +150,14 @@ export default function Header() {
                             {user ? (
                                 <Button
                                     variant="outline"
-                                    onClick={signOut}
+                                    onClick={handleSignOut}
                                     className="w-full"
                                 >
                                     Odhlásit se
                                 </Button>
                             ) : (
                                 <Button
-                                    onClick={signIn}
+                                    onClick={handleSignIn}
                                     className="w-full bg-orange-600 hover:bg-orange-700"
                                 >
                                     Přihlásit se
