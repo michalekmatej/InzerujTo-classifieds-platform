@@ -16,7 +16,13 @@ import { getCategories } from "@/lib/api";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/types";
 
-export default function CategoryFilter() {
+interface CategoryFilterProps {
+    isMobile?: boolean;
+}
+
+export default function CategoryFilter({
+    isMobile = false,
+}: CategoryFilterProps) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(true);
@@ -53,7 +59,21 @@ export default function CategoryFilter() {
         router.push(`/?${params.toString()}`);
     };
 
+    // Zobrazení při načítání
     if (isLoading) {
+        if (isMobile) {
+            return (
+                <div className="p-2 space-y-2">
+                    {[...Array(5)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="h-8 w-full animate-pulse rounded bg-muted"
+                        ></div>
+                    ))}
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-4 rounded-lg border p-4">
                 <div className="h-6 w-24 animate-pulse rounded bg-muted"></div>
@@ -70,6 +90,41 @@ export default function CategoryFilter() {
         );
     }
 
+    // Mobilní verze - zjednodušený seznam kategorií
+    if (isMobile) {
+        return (
+            <div className="rounded-lg border p-4">
+                <h3 className="font-medium mb-3">Kategorie</h3>
+                <div className="space-y-2">
+                    {categories.map((category) => (
+                        <div
+                            key={category.id}
+                            className="flex items-center space-x-2"
+                        >
+                            <Checkbox
+                                id={`mobile-category-${category.id}`}
+                                checked={selectedCategory === category.slug}
+                                onCheckedChange={() =>
+                                    handleCategoryChange(category.slug)
+                                }
+                            />
+                            <Label
+                                htmlFor={`mobile-category-${category.id}`}
+                                className="flex w-full cursor-pointer justify-between text-sm"
+                            >
+                                <span>{category.name}</span>
+                                <span className="text-muted-foreground">
+                                    ({category.count})
+                                </span>
+                            </Label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    // Desktop verze - původní zobrazení s možností rozbalení/sbalení
     return (
         <div className="rounded-lg border p-4">
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -86,7 +141,7 @@ export default function CategoryFilter() {
                         />
                     </Button>
                 </CollapsibleTrigger>
-                <Separator className="my-4" />
+                {isOpen && <Separator className="my-4" /> }
                 <CollapsibleContent className="space-y-2">
                     {categories.map((category) => (
                         <div
