@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
-import clientPromise from "@/lib/mongodb";
+import { UserService } from "@/lib/db/models/user";
 
 export async function POST(req: Request) {
     try {
@@ -18,61 +17,35 @@ export async function POST(req: Request) {
             );
         }
 
-        console.log("Registration: Connecting to MongoDB");
-        const client = await clientPromise;
-        console.log("Registration: MongoDB connection established");
+        // Použití centralizované UserService namísto přímého přístupu k MongoDB
+        console.log("Registration: Initializing UserService");
+        const userService = await UserService.getInstance();
 
-        const db = client.db("classifieds");
-        console.log("Registration: Using classifieds database");
+        // Vytvoření uživatele přes UserService
+        console.log(`Registration: Creating user ${email}`);
+        const result = await userService.createUser({
+            name,
+            email,
+            password,
+            role: "user",
+        });
 
-        // Check if user already exists
-        console.log(`Registration: Checking if user ${email} already exists`);
-        const existingUser = await db.collection("users").findOne({ email });
-
-        if (existingUser) {
-            console.log(`Registration: User ${email} already exists`);
+        if (!result.success) {
+            console.log(`Registration failed: ${result.error}`);
             return NextResponse.json(
-                { message: "User already exists" },
+                { message: result.error },
                 { status: 400 }
             );
         }
 
-        console.log("Registration: Hashing password");
-        const hashedPassword = await hash(password, 12);
-
-        console.log("Registration: Attempting to insert user into database");
-        const result = await db.collection("users").insertOne({
-            name,
-            email,
-            password: hashedPassword,
-            role: "user",
-            createdAt: new Date(),
-        });
-
         console.log(
-            `Registration: Insert operation completed with ID: ${result.insertedId}`
+            `Registration: User created successfully with ID: ${result.user?.id}`
         );
-
-        // Verify the user was actually inserted
-        console.log("Registration: Verifying user was inserted");
-        const verifyUser = await db
-            .collection("users")
-            .findOne({ _id: result.insertedId });
-
-        if (verifyUser) {
-            console.log(
-                `Registration: Verification successful, user ${email} exists in database`
-            );
-        } else {
-            console.log(
-                `Registration: VERIFICATION FAILED - User ${email} not found after insert`
-            );
-        }
 
         return NextResponse.json(
             {
                 message: "User created successfully",
-                userId: result.insertedId,
+                userId: result.user?.id,
             },
             { status: 201 }
         );

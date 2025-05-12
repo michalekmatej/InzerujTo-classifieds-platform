@@ -3,25 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Heart } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/lib/auth";
+// import { logout } from "@/lib/auth";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { logout } from "@/lib/auth";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { user, status } = useAuth();
     const router = useRouter();
-
+    const session = useSession();
+    const user = session?.data?.user;
+    
     const handleSignIn = () => {
         router.push("/login");
     };
 
-    const handleSignOut = async () => {
-        await signOut({ callbackUrl: "/" });
+    const handleSignOut = () => {
+        // logout();
     };
 
     return (
@@ -39,7 +40,6 @@ export default function Header() {
                         InzerujTo.cz
                     </span>
                 </Link>
-
                 <div className="hidden items-center gap-4 md:flex">
                     <nav className="flex items-center gap-4">
                         <Link href="/" className="text-sm font-medium">
@@ -71,7 +71,6 @@ export default function Header() {
                             </Link>
                         )}
                     </nav>
-
                     <div className="flex items-center gap-2">
                         <ModeToggle />
                         {user ? (
@@ -88,7 +87,6 @@ export default function Header() {
                         )}
                     </div>
                 </div>
-
                 <Button
                     variant="ghost"
                     size="icon"
@@ -102,7 +100,6 @@ export default function Header() {
                     )}
                 </Button>
             </div>
-
             {isMenuOpen && (
                 <div className="container mx-auto px-4 pb-4 md:hidden">
                     <nav className="flex flex-col gap-2">

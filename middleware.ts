@@ -1,22 +1,25 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 
-export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+// Augment the User type to include role
+declare module "next-auth" {
+    interface User {
+        role?: string;
+    }
+}
 
-    // Define protected routes
-    const protectedRoutes = [
-        "/dashboard",
-        "/classifieds/new",
-        "/favorites",
-        "/admin",
-    ];
+const protectedRoutes = [
+    "/dashboard",
+    "/classifieds/new",
+    "/favorites",
+    "/admin",
+];
+const adminRoutes = ["/admin"];
 
-    // Define admin-only routes
-    const adminRoutes = ["/admin"];
+export default auth((req) => {
+    const { pathname } = req.nextUrl;
+    const { auth: session } = req;
 
-    // Check if the current path is protected
     const isProtectedRoute = protectedRoutes.some((route) =>
         pathname.startsWith(route)
     );
@@ -25,23 +28,18 @@ export async function middleware(request: NextRequest) {
     );
 
     if (isProtectedRoute) {
-        const token = await getToken({
-            req: request,
-            secret: process.env.NEXTAUTH_SECRET,
-        });
-
-        // Redirect to login if no token exists
-        if (!token) {
-            const url = new URL(`/login`, request.url);
-            url.searchParams.set("callbackUrl", encodeURI(request.url));
-            return NextResponse.redirect(url);
-        }
-
-        // Redirect non-admin users trying to access admin routes
-        if (isAdminRoute && token.role !== "admin") {
-            return NextResponse.redirect(new URL("/", request.url));
+        if (!session?.user) {
+            return NextResponse.redirect(new URL("/login", req.url));
         }
     }
 
+    if (isAdminRoute && session?.user?.role !== "admin") {
+        return NextResponse.redirect(new URL("/", req.url));
+    }
+
     return NextResponse.next();
-}
+});
+
+export const config = {
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};

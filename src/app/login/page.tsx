@@ -16,6 +16,7 @@ import {
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { login } from "@/lib/auth";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -30,40 +31,8 @@ export default function LoginPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
-        try {
-            const result = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
-            });
-
-            if (result?.error) {
-                toast({
-                    title: "Login Failed",
-                    description: result.error,
-                    variant: "destructive",
-                });
-                setIsLoading(false);
-                return;
-            }
-
-            toast({
-                title: "Success!",
-                description: "You have been logged in.",
-            });
-
-            router.push("/dashboard");
-            router.refresh();
-        } catch (error) {
-            console.error(error);
-            toast({
-                title: "Something went wrong",
-                description: "Please try again later",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        await login(email, password);
+        setIsLoading(false);
     }
 
     return (
