@@ -8,12 +8,7 @@ declare module "next-auth" {
     }
 }
 
-const protectedRoutes = [
-    "/dashboard",
-    "/classifieds/new",
-    "/favorites",
-    "/admin",
-];
+const protectedRoutes = ["/dashboard", "/classifieds/new"];
 const adminRoutes = ["/admin"];
 
 export default auth((req) => {
@@ -29,12 +24,16 @@ export default auth((req) => {
 
     if (isProtectedRoute) {
         if (!session?.user) {
-            return NextResponse.redirect(new URL("/login", req.url));
+            const loginUrl = new URL("/login", req.url);
+            loginUrl.searchParams.set("redirect", pathname);
+            return NextResponse.redirect(loginUrl);
         }
     }
 
-    if (isAdminRoute && session?.user?.role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
+    if (isAdminRoute) {
+        if (!session?.user && session?.user?.role !== "admin") {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
     }
 
     return NextResponse.next();

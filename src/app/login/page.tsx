@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +19,8 @@ import { login } from "@/lib/auth/auth-client";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectPath = searchParams.get("redirect");
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -31,11 +33,11 @@ export default function LoginPage() {
         const password = formData.get("password") as string;
 
         try {
-            await login(email, password);
+            await login(email, password, redirectPath || undefined);
         } catch (error) {
             toast({
-                title: "Login failed",
-                description: "Please check your credentials and try again.",
+                title: "Přihlášení selhalo",
+                description: "Zkontrolujte své údaje a zkuste to znovu.",
                 variant: "destructive",
             });
             setIsLoading(false);
@@ -43,12 +45,19 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="container mx-auto flex justify-center items-center min-h-[80vh] px-4">
             <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle>Login</CardTitle>
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-2xl font-bold">
+                        Přihlášení
+                    </CardTitle>
                     <CardDescription>
-                        Enter your credentials to access your account
+                        Zadejte své přihlašovací údaje pro přístup k účtu
+                        {/* {redirectPath && (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                                Po přihlášení budete přesměrováni na požadovanou stránku.
+                            </div>
+                        )} */}
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={onSubmit}>
@@ -59,34 +68,45 @@ export default function LoginPage() {
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder="name@example.com"
+                                placeholder="vas@email.cz"
                                 required
+                                className="w-full"
                             />
                         </div>
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">Heslo</Label>
                             </div>
                             <Input
                                 id="password"
                                 name="password"
                                 type="password"
                                 required
+                                className="w-full"
                             />
                         </div>
                     </CardContent>
-                    <CardFooter className="flex flex-col space-y-2">
+                    <CardFooter className="flex flex-col space-y-3">
                         <Button
                             type="submit"
-                            className="w-full"
+                            className="w-full bg-orange-600 hover:bg-orange-700"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Logging in..." : "Login"}
+                            {isLoading ? "Přihlašování..." : "Přihlásit se"}
                         </Button>
                         <div className="text-center text-sm">
-                            Don&apos;t have an account?{" "}
-                            <Link href="/register" className="underline">
-                                Register
+                            Nemáte účet?{" "}
+                            <Link
+                                href={
+                                    redirectPath
+                                        ? `/register?redirect=${encodeURIComponent(
+                                              redirectPath
+                                          )}`
+                                        : "/register"
+                                }
+                                className="text-orange-600 hover:underline font-medium"
+                            >
+                                Registrovat se
                             </Link>
                         </div>
                     </CardFooter>

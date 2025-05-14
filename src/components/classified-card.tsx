@@ -29,61 +29,62 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
     });
 
     return (
-        <Card
-            className="overflow-hidden transition-all hover:shadow-md"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <div className="relative aspect-square">
-                <Image
-                    src={imageUrl || "/placeholder.svg?height=300&width=300"}
-                    alt={title}
-                    fill
-                    className="object-cover transition-transform duration-300"
-                    style={{
-                        transform: isHovered ? "scale(1.05)" : "scale(1)",
-                    }}
-                />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-2 bg-background/80 backdrop-blur-sm"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        toggleFavorite(classified);
-                    }}
-                >
-                    <Heart
-                        className={`h-5 w-5 ${
-                            isFavorite(id)
-                                ? "fill-orange-600 text-orange-600"
-                                : "text-muted-foreground"
-                        }`}
+        <Link href={`/classifieds/${id}`}>
+            <Card
+                className="overflow-hidden transition-all hover:shadow-md"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                <div className="relative aspect-square">
+                    <Image
+                        src={
+                            imageUrl || "/placeholder.svg?height=300&width=300"
+                        }
+                        alt={title}
+                        fill
+                        className="object-cover transition-transform duration-300"
+                        style={{
+                            transform: isHovered ? "scale(1.05)" : "scale(1)",
+                        }}
                     />
-                </Button>
-            </div>
-            <CardContent className="p-4">
-                <div className="mb-2 flex items-start justify-between gap-2">
-                    <Link
-                        href={`/classifieds/${id}`}
-                        className="hover:underline"
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-2 bg-background/80 backdrop-blur-sm"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            toggleFavorite(classified);
+                        }}
                     >
-                        <h3 className="line-clamp-2 font-medium">{title}</h3>
-                    </Link>
-                    <span className="whitespace-nowrap text-lg font-bold text-orange-600">
-                        {price.toLocaleString()} Kč
-                    </span>
+                        <Heart
+                            className={`h-5 w-5 ${
+                                isFavorite(id)
+                                    ? "fill-orange-600 text-orange-600"
+                                    : "text-muted-foreground"
+                            }`}
+                        />
+                    </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline">{category}</Badge>
-                    <span className="text-xs text-muted-foreground">
-                        {location}
-                    </span>
-                </div>
-            </CardContent>
-            <CardFooter className="border-t p-4 text-xs text-muted-foreground">
-                Přidáno {formattedDate}
-            </CardFooter>
-        </Card>
+                <CardContent className="p-4">
+                    <div className="mb-2 flex items-start justify-between gap-2">
+                        <h3 className="line-clamp-2 font-medium hover:underline">
+                            {title}
+                        </h3>
+                        <span className="whitespace-nowrap text-lg font-bold text-orange-600">
+                            {price.toLocaleString()} Kč
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline">{category}</Badge>
+                        <span className="text-xs text-muted-foreground">
+                            {location}
+                        </span>
+                    </div>
+                </CardContent>
+                <CardFooter className="border-t p-4 text-xs text-muted-foreground">
+                    Přidáno {formattedDate}
+                </CardFooter>
+            </Card>
+        </Link>
     );
 }

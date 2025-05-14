@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Menu, X, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { logout } from "@/lib/auth/auth-client";
+import Head from "next/head";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,13 +22,17 @@ export default function Header() {
         router.push("/login");
     };
 
+    const handleRegister = () => {
+        router.push("/register");
+    };
+
     const handleSignOut = async () => {
         await logout();
     };
 
     return (
-        <header className="border-b">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <header className="border-b sticky top-0 left-0 right-0 z-50 bg-background">
+            <div className="container mx-auto flex h-16 items-center px-4">
                 <Link href="/" className="flex items-center gap-2">
                     <Image
                         src="/logo.png"
@@ -38,134 +44,171 @@ export default function Header() {
                     <span className="text-xl font-bold text-orange-600">
                         InzerujTo.cz
                     </span>
-                    <span className="text-muted-foreground text-sm">
-                        {user?.email}
-                    </span>
                 </Link>
-                <div className="hidden items-center gap-4 md:flex">
-                    <nav className="flex items-center gap-4">
-                        <Link href="/" className="text-sm font-medium">
-                            Domů
-                        </Link>
-                        <Link
-                            href="/categories"
-                            className="text-sm font-medium"
-                        >
-                            Kategorie
-                        </Link>
-                        <Link
-                            href="/favorites"
-                            className="text-sm font-medium flex items-center gap-1"
-                        >
-                            Oblíbené
-                        </Link>
+                <div className="hidden items-center gap-4 ml-10 md:flex justify-between flex-1">
+                    <nav className="flex items-center gap-6">
+                        <HeaderLink href="/">Domů</HeaderLink>
+                        <HeaderLink href="/categories">Kategorie</HeaderLink>
+                        <HeaderLink href="/favorites">Oblíbené</HeaderLink>
                         {user && (
-                            <Link
-                                href="/dashboard"
-                                className="text-sm font-medium"
-                            >
-                                Nástěnka
-                            </Link>
+                            <HeaderLink href="/dashboard">Nástěnka</HeaderLink>
                         )}
                         {user?.role === "admin" && (
-                            <Link href="/admin" className="text-sm font-medium">
-                                Admin
-                            </Link>
+                            <HeaderLink href="/admin">Admin</HeaderLink>
                         )}
                     </nav>
                     <div className="flex items-center gap-2">
-                        <ModeToggle />
+                        {user && (
+                            <span className="text-muted-foreground text-sm">
+                                {user?.email}
+                            </span>
+                        )}
+                        <ThemeToggle />
                         {user ? (
                             <Button variant="outline" onClick={handleSignOut}>
                                 Odhlásit se
                             </Button>
                         ) : (
-                            <Button
-                                onClick={handleSignIn}
-                                className="bg-orange-600 hover:bg-orange-700"
-                            >
-                                Přihlásit se
-                            </Button>
+                            <>
+                                <Button
+                                    onClick={handleRegister}
+                                    variant={"link"}
+                                    className="text-orange-600 -ml-2"
+                                >
+                                    Registrovat se
+                                </Button>
+                                <Button
+                                    onClick={handleSignIn}
+                                    className="bg-orange-600 hover:bg-orange-700"
+                                >
+                                    Přihlásit se
+                                </Button>
+                            </>
                         )}
                     </div>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="md:hidden"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    {isMenuOpen ? (
-                        <X className="h-5 w-5" />
-                    ) : (
-                        <Menu className="h-5 w-5" />
-                    )}
-                </Button>
+                <div className="ml-auto flex items-center gap-2">
+                    <div className="md:hidden">
+                        <ThemeToggle />
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
+                        {isMenuOpen ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <Menu className="h-5 w-5" />
+                        )}
+                    </Button>
+                </div>
             </div>
             {isMenuOpen && (
                 <div className="container mx-auto px-4 pb-4 md:hidden">
                     <nav className="flex flex-col gap-2">
-                        <Link
+                        <HeaderLink
                             href="/"
-                            className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
                             onClick={() => setIsMenuOpen(false)}
+                            mobile
                         >
                             Domů
-                        </Link>
-                        <Link
+                        </HeaderLink>
+                        <HeaderLink
                             href="/categories"
-                            className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
                             onClick={() => setIsMenuOpen(false)}
+                            mobile
                         >
                             Kategorie
-                        </Link>
-                        <Link
+                        </HeaderLink>
+                        <HeaderLink
                             href="/favorites"
-                            className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent flex items-center gap-1"
                             onClick={() => setIsMenuOpen(false)}
+                            mobile
                         >
-                            <Heart className="h-3 w-3" /> Oblíbené
-                        </Link>
+                            Oblíbené
+                        </HeaderLink>
+
                         {user && (
-                            <Link
+                            <HeaderLink
                                 href="/dashboard"
-                                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
                                 onClick={() => setIsMenuOpen(false)}
+                                mobile
                             >
                                 Nástěnka
-                            </Link>
+                            </HeaderLink>
                         )}
                         {user?.role === "admin" && (
-                            <Link
+                            <HeaderLink
                                 href="/admin"
-                                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
                                 onClick={() => setIsMenuOpen(false)}
+                                mobile
                             >
                                 Admin
-                            </Link>
+                            </HeaderLink>
                         )}
-                        <div className="flex items-center gap-2 pt-2">
-                            <ModeToggle />
+                        <div className="flex flex-col gap-2">
                             {user ? (
-                                <Button
-                                    variant="outline"
-                                    onClick={handleSignOut}
-                                    className="w-full"
-                                >
-                                    Odhlásit se
-                                </Button>
+                                <>
+                                    <span className="text-muted-foreground text-sm text-center mb-3">
+                                        {user?.email}
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleSignOut}
+                                        className="w-full"
+                                    >
+                                        Odhlásit se
+                                    </Button>
+                                </>
                             ) : (
                                 <Button
-                                    onClick={handleSignIn}
-                                    className="w-full bg-orange-600 hover:bg-orange-700"
+                                    onClick={handleRegister}
+                                    variant={"link"}
+                                    className="text-orange-600 w-full"
                                 >
-                                    Přihlásit se
+                                    Registrovat se
                                 </Button>
                             )}
                         </div>
+                        {!user && (
+                            <Button
+                                onClick={handleSignIn}
+                                className="bg-orange-600 hover:bg-orange-700 w-full"
+                            >
+                                Přihlásit se
+                            </Button>
+                        )}
                     </nav>
                 </div>
             )}
         </header>
     );
 }
+
+const HeaderLink = ({
+    href,
+    children,
+    onClick,
+    mobile,
+}: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: () => void;
+    mobile?: boolean;
+}) => {
+    return (
+        <Link
+            href={href}
+            onClick={onClick}
+            className={cn(
+                !mobile
+                    ? "text-sm font-medium hover:text-orange-600"
+                    : "rounded-md px-3 py-3 text-sm text-center font-medium hover:bg-accent"
+            )}
+        >
+            {children}
+        </Link>
+    );
+};

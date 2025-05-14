@@ -2,12 +2,16 @@
 
 import { signIn, signOut } from "next-auth/react";
 
-export const login = async (email: string, password: string) => {
+export const login = async (
+    email: string,
+    password: string,
+    redirectTo?: string
+) => {
     await signIn("credentials", {
         email,
         password,
         redirect: true,
-        redirectTo: "/dashboard",
+        redirectTo: redirectTo || "/dashboard",
     });
 };
 
