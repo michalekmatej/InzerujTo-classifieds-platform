@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 
 import { User } from "@/lib/db/models/user";
 import { Collection, Document, MongoClient } from "mongodb";
@@ -30,7 +30,10 @@ if (process.env.NODE_ENV === "development") {
     clientPromise = client.connect();
 }
 
-export default clientPromise;
+// export default clientPromise;
+export default async function getMongoClient() {
+    return await clientPromise;
+}
 
 export async function getCollection<T = any>(
     collectionName: string

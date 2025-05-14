@@ -1,11 +1,12 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "@/lib/db/db";
-import authConfig from "../../auth.config";
+import getMongoClient from "@/lib/db/db";
+import authConfig from "../../../auth.config";
+import { Adapter } from "next-auth/adapters";
 
 const { auth, handlers, signIn, signOut } = NextAuth({
-    adapter: MongoDBAdapter(clientPromise),
+    adapter: MongoDBAdapter(getMongoClient()) as Adapter,
     session: { strategy: "jwt" },
     // callbacks: {
     //     jwt: async ({ token, user }) => {
@@ -24,20 +25,7 @@ const { auth, handlers, signIn, signOut } = NextAuth({
     //         return session;
     //     }
     // },
-    ...authConfig
+    ...authConfig,
 });
 
 export { auth, handlers };
-
-export const login = async (email: string, password: string) => {
-    await signIn("credentials", {
-        email,
-        password,
-        redirect: true,
-        redirectTo: "/dashboard",
-    });
-};
-
-export const logout = async () => {
-    await signOut({ redirect: true, redirectTo: "/" });
-};

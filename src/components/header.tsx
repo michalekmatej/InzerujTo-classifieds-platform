@@ -6,23 +6,22 @@ import { Menu, X, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-// import { logout } from "@/lib/auth";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { logout } from "@/lib/auth";
+import { logout } from "@/lib/auth/auth-client";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
     const session = useSession();
     const user = session?.data?.user;
-    
+
     const handleSignIn = () => {
         router.push("/login");
     };
 
-    const handleSignOut = () => {
-        // logout();
+    const handleSignOut = async () => {
+        await logout();
     };
 
     return (
@@ -38,6 +37,9 @@ export default function Header() {
                     />
                     <span className="text-xl font-bold text-orange-600">
                         InzerujTo.cz
+                    </span>
+                    <span className="text-muted-foreground text-sm">
+                        {user?.email}
                     </span>
                 </Link>
                 <div className="hidden items-center gap-4 md:flex">

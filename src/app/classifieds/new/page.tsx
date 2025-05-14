@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import ClassifiedForm from "@/components/classified-form";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function NewClassifiedPage() {
     const user = await getCurrentUser();

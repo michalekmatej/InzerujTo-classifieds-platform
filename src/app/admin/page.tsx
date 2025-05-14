@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getClassifieds } from "@/lib/api";
 import AdminClassifiedsList from "@/components/admin-classifieds-list";
 

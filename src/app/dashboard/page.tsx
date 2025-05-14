@@ -4,7 +4,7 @@ import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getClassifieds } from "@/lib/api";
 import DashboardClassifiedsList from "@/components/dashboard-classifieds-list";
 import FavoritesList from "@/components/favorites-list";
