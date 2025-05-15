@@ -30,7 +30,6 @@ export default function Header() {
         await logout();
     };
 
-    // console.log(user);
 
     return (
         <header className="border-b sticky top-0 left-0 right-0 z-50 bg-background">
@@ -62,7 +61,7 @@ export default function Header() {
                     <div className="flex items-center gap-2">
                         {user && (
                             <span className="text-muted-foreground text-sm">
-                                {user?.email}
+                                {user?.name}
                             </span>
                         )}
                         <ThemeToggle />

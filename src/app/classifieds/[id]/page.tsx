@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import FavoriteButton from "@/components/favorite-button";
 import ClassifiedActions from "@/components/classified-actions";
 import { ClassifiedService } from "@/lib/db/models/classified";
+import { UserService } from "@/lib/db/models/user";
 
 interface ClassifiedPageProps {
     params: {
@@ -37,6 +38,10 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
         imageUrl,
         userId,
     } = classified;
+
+    const userService = await UserService.getInstance();
+    const user = await userService.findById(userId);
+
     const formattedDate = formatDistanceToNow(new Date(createdAt), {
         addSuffix: true,
         locale: cs,
@@ -100,10 +105,12 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
 
                     <div className="mt-auto space-y-4">
                         <div className="flex items-center justify-between">
-                            <div className="inline-flex items-center text-sm text-muted-foreground">
-                                <User className="mr-1 h-4 w-4" />
-                                Uživatel: {userId}
-                            </div>
+                            {user && (
+                                <div className="inline-flex items-center text-sm text-muted-foreground">
+                                    <User className="mr-1 h-4 w-4" />
+                                    Uživatel: {user.name || user.email}
+                                </div>
+                            )}
                             <div className="text-sm text-muted-foreground">
                                 Přidáno {formattedDate}
                             </div>

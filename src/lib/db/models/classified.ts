@@ -95,8 +95,9 @@ export class ClassifiedService {
         classifiedData: Omit<Classified, "id" | "createdAt" | "updatedAt">
     ): Promise<{ success: boolean; classified?: Classified; error?: string }> {
         try {
-            const newClassified: Omit<Classified, "id"> = {
+            const newClassified = {
                 ...classifiedData,
+                // userId: new ObjectId(classifiedData.userId),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { ClassifiedService } from "@/lib/db/models/classified";
 import { getCurrentUser } from "@/lib/auth/session";
+import { ObjectId } from "mongodb";
 
 export async function POST(request: Request) {
     try {
         // Verify the user is authenticated
         const user = await getCurrentUser();
+
         if (!user) {
             return NextResponse.json(
                 { error: "Unauthorized access" },
@@ -33,10 +35,11 @@ export async function POST(request: Request) {
         // Get the classified service
         const classifiedService = await ClassifiedService.getInstance();
 
+
         // Add userId from the authenticated user
         const classifiedData = {
             ...data,
-            userId: user.id,
+            userId: user.id
         };
 
         // Create the classified
