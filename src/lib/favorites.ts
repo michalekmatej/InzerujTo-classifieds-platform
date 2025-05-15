@@ -1,49 +1,93 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { Classified } from "./types"
+import { useState, useEffect } from "react";
+import type { Classified } from "./types";
+
+// Create a global store for favorites to ensure consistency across components
+let globalFavorites: Classified[] = [];
+let listeners: Function[] = [];
+
+const notifyListeners = () => {
+    listeners.forEach((listener) => listener(globalFavorites));
+};
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<Classified[]>([])
+    const [favorites, setFavorites] = useState<Classified[]>([]);
 
-  useEffect(() => {
-    // Load favorites from localStorage on mount
-    const storedFavorites = localStorage.getItem("favorites")
-    if (storedFavorites) {
-      setFavorites(JSON.parse(storedFavorites))
-    }
-  }, [])
+    // Effect to initialize from localStorage once on mount
+    useEffect(() => {
+        try {
+            // Only load from localStorage on first mount
+            if (globalFavorites.length === 0) {
+                const storedFavorites = localStorage.getItem("favorites");
+                if (storedFavorites) {
+                    globalFavorites = JSON.parse(storedFavorites);
+                }
+            }
 
-  const saveFavorites = (newFavorites: Classified[]) => {
-    setFavorites(newFavorites)
-    localStorage.setItem("favorites", JSON.stringify(newFavorites))
-  }
+            // Set the initial state from global
+            setFavorites([...globalFavorites]);
 
-  const addFavorite = (classified: Classified) => {
-    saveFavorites([...favorites, classified])
-  }
+            // Register this component as a listener
+            const listenerCallback = (newFavorites: Classified[]) => {
+                setFavorites([...newFavorites]);
+            };
 
-  const removeFavorite = (id: string) => {
-    saveFavorites(favorites.filter((item) => item.id !== id))
-  }
+            listeners.push(listenerCallback);
 
-  const toggleFavorite = (classified: Classified) => {
-    if (isFavorite(classified.id)) {
-      removeFavorite(classified.id)
-    } else {
-      addFavorite(classified)
-    }
-  }
+            // Clean up listener on unmount
+            return () => {
+                listeners = listeners.filter((l) => l !== listenerCallback);
+            };
+        } catch (error) {
+            console.error("Error initializing favorites:", error);
+            setFavorites([]);
+        }
+    }, []);
 
-  const isFavorite = (id: string) => {
-    return favorites.some((item) => item.id === id)
-  }
+    const saveFavorites = (newFavorites: Classified[]) => {
+        try {
+            globalFavorites = newFavorites;
+            localStorage.setItem("favorites", JSON.stringify(newFavorites));
+            notifyListeners();
+        } catch (error) {
+            console.error("Error saving favorites:", error);
+        }
+    };
 
-  return {
-    favorites,
-    addFavorite,
-    removeFavorite,
-    toggleFavorite,
-    isFavorite,
-  }
+    const addFavorite = (classified: Classified) => {
+        // Use the latest global state
+        const updatedFavorites = [...globalFavorites, classified];
+        saveFavorites(updatedFavorites);
+    };
+
+    const removeFavorite = (id: string) => {
+        // Use the latest global state
+        const updatedFavorites = globalFavorites.filter(
+            (item) => item.id !== id
+        );
+        saveFavorites(updatedFavorites);
+    };
+
+    const toggleFavorite = (classified: Classified) => {
+        // Use the latest global state instead of component state
+        if (globalFavorites.some((item) => item.id === classified.id)) {
+            removeFavorite(classified.id);
+        } else {
+            addFavorite(classified);
+        }
+    };
+
+    const isFavorite = (id: string) => {
+        // Always check against global state for consistency
+        return globalFavorites.some((item) => item.id === id);
+    };
+
+    return {
+        favorites,
+        addFavorite,
+        removeFavorite,
+        toggleFavorite,
+        isFavorite,
+    };
 }

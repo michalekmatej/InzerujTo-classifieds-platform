@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from "mongodb";
 import { getClassifiedCollection } from "@/lib/db/db";
-import { Classified, ClassifiedFilter } from "@/lib/types";
+import { Category, Classified, ClassifiedFilter } from "@/lib/types";
 
 // Centralized classified logic
 export class ClassifiedService {
@@ -24,17 +24,19 @@ export class ClassifiedService {
     async findById(id: string): Promise<Classified | null> {
         try {
             const objectId = new ObjectId(id);
-            const classified = await this.classifiedCollection.findOne({ _id: objectId });
-            
+            const classified = await this.classifiedCollection.findOne({
+                _id: objectId,
+            });
+
             if (!classified) {
                 return null;
             }
-            
+
             // Transform MongoDB _id to id expected by frontend
             const { _id, ...rest } = classified as any;
             return {
                 id: _id.toString(),
-                ...rest
+                ...rest,
             };
         } catch (error) {
             console.error("Invalid ObjectId format", error);
@@ -76,11 +78,11 @@ export class ClassifiedService {
                 .sort({ createdAt: -1 })
                 .toArray();
 
-            return classifieds.map(classified => {
+            return classifieds.map((classified) => {
                 const { _id, ...rest } = classified as any;
                 return {
                     id: _id.toString(),
-                    ...rest
+                    ...rest,
                 };
             });
         } catch (error) {
@@ -234,6 +236,51 @@ export class ClassifiedService {
             });
         } catch (error) {
             console.error("Error listing classifieds by user:", error);
+            return [];
+        }
+    }
+
+    async getCategoriesWithCounts(): Promise<Category[]> {
+        try {
+            // Aggregate classifieds to group by category and count them
+            const categoryCounts = await this.classifiedCollection
+                .aggregate([
+                    // Group by category
+                    {
+                        $group: {
+                            _id: "$category",
+                            count: { $sum: 1 },
+                        },
+                    },
+                    // Sort by category name for consistency
+                    {
+                        $sort: { _id: 1 },
+                    },
+                ])
+                .toArray();
+
+            // Transform the aggregation result into the Category format
+            const categories: Category[] = categoryCounts.map((result: any) => {
+                const categoryName = result._id;
+                // Convert the category name to a slug (for URL purposes)
+                const slug = categoryName
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^\w\s]/g, "")
+                    .replace(/\s+/g, "-");
+
+                return {
+                    id: slug, // Using slug as ID for simplicity
+                    name: categoryName,
+                    slug: slug,
+                    count: result.count,
+                };
+            });
+
+            return categories;
+        } catch (error) {
+            console.error("Error getting categories with counts:", error);
             return [];
         }
     }

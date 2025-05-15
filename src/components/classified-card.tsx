@@ -28,6 +28,13 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
         locale: cs,
     });
 
+    // Handler to toggle favorite with proper event handling
+    const handleFavoriteToggle = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavorite(classified);
+    };
+
     return (
         <Link href={`/classifieds/${id}`}>
             <Card
@@ -51,10 +58,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                         variant="ghost"
                         size="icon"
                         className="absolute right-2 top-2 bg-background/80 backdrop-blur-sm"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            toggleFavorite(classified);
-                        }}
+                        onClick={handleFavoriteToggle}
                     >
                         <Heart
                             className={`h-5 w-5 ${

@@ -7,7 +7,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const classifiedService = await ClassifiedService.getInstance();
         const classified = await classifiedService.findById(id);
 

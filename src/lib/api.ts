@@ -141,12 +141,12 @@ export async function getClassifiedById(
 ): Promise<Classified | null> {
     try {
         const response = await fetch(`/api/classifieds/${id}`);
-        
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Failed to fetch classified");
         }
-        
+
         const data = await response.json();
         return data.classified || null;
     } catch (error) {
@@ -212,6 +212,19 @@ export async function deleteClassified(id: string): Promise<void> {
 
 // Získat všechny kategorie
 export async function getCategories(): Promise<Category[]> {
-    await delay(500);
-    return mockCategories;
+    try {
+        const response = await fetch("/api/categories");
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to fetch categories");
+        }
+
+        const data = await response.json();
+        return data.categories || [];
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        // Return mock data as fallback in case of error
+        return mockCategories;
+    }
 }

@@ -131,7 +131,7 @@ export default function CategoryFilter({
                 <CollapsibleTrigger asChild>
                     <Button
                         variant="ghost"
-                        className="flex w-full justify-between p-0"
+                        className="flex w-full justify-between p-0 hover:bg-transparent"
                     >
                         <span className="font-medium">Kategorie</span>
                         <ChevronDown

@@ -20,7 +20,8 @@ interface ClassifiedPageProps {
 
 export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
     const classifiedsService = await ClassifiedService.getInstance();
-    const classified = await classifiedsService.findById(params.id);
+    const { id } = await params;
+    const classified = await classifiedsService.findById(id);
 
     if (!classified) {
         notFound();
@@ -71,7 +72,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
                         <h1 className="text-2xl font-bold md:text-3xl">
                             {title}
                         </h1>
-                        <FavoriteButton classifiedId={params.id} />
+                        <FavoriteButton classifiedId={id} />
                     </div>
 
                     <div className="mb-4 flex items-center gap-2">
@@ -101,7 +102,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
                         <div className="flex items-center justify-between">
                             <div className="inline-flex items-center text-sm text-muted-foreground">
                                 <User className="mr-1 h-4 w-4" />
-                                ID uživatele: {userId}
+                                Uživatel: {userId}
                             </div>
                             <div className="text-sm text-muted-foreground">
                                 Přidáno {formattedDate}
