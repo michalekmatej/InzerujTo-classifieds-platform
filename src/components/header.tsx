@@ -30,7 +30,6 @@ export default function Header() {
         await logout();
     };
 
-
     return (
         <header className="border-b sticky top-0 left-0 right-0 z-50 bg-background">
             <div className="container mx-auto flex h-16 items-center px-4">
@@ -52,7 +51,7 @@ export default function Header() {
                         <HeaderLink href="/categories">Kategorie</HeaderLink>
                         <HeaderLink href="/favorites">Oblíbené</HeaderLink>
                         {user && (
-                            <HeaderLink href="/dashboard">Nástěnka</HeaderLink>
+                            <HeaderLink href="/dashboard">Moje</HeaderLink>
                         )}
                         {user?.role === "admin" && (
                             <HeaderLink href="/admin">Admin</HeaderLink>
@@ -137,7 +136,7 @@ export default function Header() {
                                 onClick={() => setIsMenuOpen(false)}
                                 mobile
                             >
-                                Nástěnka
+                                Moje
                             </HeaderLink>
                         )}
                         {user?.role === "admin" && (

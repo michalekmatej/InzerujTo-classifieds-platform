@@ -42,7 +42,7 @@ export async function PUT(
             );
         }
 
-        const { id } = params;
+        const { id } = await params;
         const data = await request.json();
 
         // Get the classified service
@@ -103,7 +103,7 @@ export async function DELETE(
             );
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         // Get the classified service
         const classifiedService = await ClassifiedService.getInstance();

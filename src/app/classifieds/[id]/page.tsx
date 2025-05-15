@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import { ArrowLeft, MapPin, User } from "lucide-react";
