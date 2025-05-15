@@ -10,16 +10,11 @@ export async function getCurrentUser(): Promise<User | null> {
         return null;
     }
 
-    // Ensure role is properly typed
-    const userRole = ((session.user.role as string) || "user") as
-        | "user"
-        | "admin";
-
     return {
         id: session.user.id as string,
         name: session.user.name || "",
         email: session.user.email || "",
-        role: userRole,
-        image: session.user.image || null,
+        role: session.user.role as "user" | "admin",
+        // image: session.user.image || null,
     };
 }

@@ -8,9 +8,9 @@ import { ArrowLeft, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getClassifiedById } from "@/lib/api";
 import FavoriteButton from "@/components/favorite-button";
 import ClassifiedActions from "@/components/classified-actions";
+import { ClassifiedService } from "@/lib/db/models/classified";
 
 interface ClassifiedPageProps {
     params: {
@@ -19,7 +19,8 @@ interface ClassifiedPageProps {
 }
 
 export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
-    const classified = await getClassifiedById(params.id);
+    const classifiedsService = await ClassifiedService.getInstance();
+    const classified = await classifiedsService.findById(params.id);
 
     if (!classified) {
         notFound();

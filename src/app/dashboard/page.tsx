@@ -5,23 +5,14 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getClassifieds } from "@/lib/api";
 import DashboardClassifiedsList from "@/components/dashboard-classifieds-list";
 import FavoritesList from "@/components/favorites-list";
+import { ClassifiedService } from "@/lib/db/models/classified";
 
 export default async function DashboardPage() {
     const user = await getCurrentUser();
-
-    // Redirect to login if not authenticated
-    if (!user) {
-        redirect("/login?redirect=/dashboard");
-    }
-
-    // Get user's classifieds
-    const userClassifieds = await getClassifieds();
-    const filteredClassifieds = userClassifieds.filter(
-        (c) => c.userId === user.id
-    );
+    const classifiedsService = await ClassifiedService.getInstance();
+    const classifieds = await classifiedsService.listClassifiedsByUser(user!.id);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -45,7 +36,7 @@ export default async function DashboardPage() {
 
                 <TabsContent value="my-classifieds">
                     <DashboardClassifiedsList
-                        classifieds={filteredClassifieds}
+                        classifieds={classifieds}
                     />
                 </TabsContent>
 

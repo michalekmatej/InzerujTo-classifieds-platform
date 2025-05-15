@@ -30,6 +30,8 @@ export default function Header() {
         await logout();
     };
 
+    // console.log(user);
+
     return (
         <header className="border-b sticky top-0 left-0 right-0 z-50 bg-background">
             <div className="container mx-auto flex h-16 items-center px-4">

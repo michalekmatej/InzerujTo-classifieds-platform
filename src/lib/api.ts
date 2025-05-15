@@ -106,58 +106,74 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function getClassifieds(
     filter?: ClassifiedFilter
 ): Promise<Classified[]> {
-    await delay(800); // Simulace síťového zpoždění
-
-    let filteredClassifieds = [...mockClassifieds];
-
+    // Build query string from filter
+    const queryParams = new URLSearchParams();
     if (filter?.category) {
-        filteredClassifieds = filteredClassifieds.filter(
-            (classified) => classified.category === filter.category
-        );
+        queryParams.append("category", filter.category);
     }
-
     if (filter?.query) {
-        const query = filter.query.toLowerCase();
-        filteredClassifieds = filteredClassifieds.filter(
-            (classified) =>
-                classified.title.toLowerCase().includes(query) ||
-                classified.description.toLowerCase().includes(query) ||
-                classified.location.toLowerCase().includes(query)
-        );
+        queryParams.append("q", filter.query);
+    }
+    if (filter?.limit) {
+        queryParams.append("limit", filter.limit.toString());
+    }
+    if (filter?.skip) {
+        queryParams.append("skip", filter.skip.toString());
     }
 
-    return filteredClassifieds;
+    const queryString = queryParams.toString();
+    const url = `/api/classifieds${queryString ? `?${queryString}` : ""}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch classifieds");
+    }
+
+    const data = await response.json();
+    return data.classifieds || [];
 }
 
 // Získat jeden inzerát podle ID
 export async function getClassifiedById(
     id: string
 ): Promise<Classified | null> {
-    await delay(500);
-    return mockClassifieds.find((classified) => classified.id === id) || null;
+    try {
+        const response = await fetch(`/api/classifieds/${id}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to fetch classified");
+        }
+        
+        const data = await response.json();
+        return data.classified || null;
+    } catch (error) {
+        console.error(`Error fetching classified with ID ${id}:`, error);
+        return null;
+    }
 }
 
-// Vytvořit nový inzerát
+// Real API implementations
 export async function createClassified(
     classifiedData: Partial<Classified>
 ): Promise<Classified> {
-    await delay(1000);
+    const response = await fetch("/api/classifieds", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(classifiedData),
+    });
 
-    const newClassified: Classified = {
-        id: `${mockClassifieds.length + 1}`,
-        title: classifiedData.title || "",
-        description: classifiedData.description || "",
-        price: classifiedData.price || 0,
-        category: classifiedData.category || "",
-        location: classifiedData.location || "",
-        imageUrl: classifiedData.imageUrl || null,
-        userId: classifiedData.userId || "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    };
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create classified");
+    }
 
-    mockClassifieds.push(newClassified);
-    return newClassified;
+    const data = await response.json();
+    return data.classified;
 }
 
 // Aktualizovat existující inzerát
@@ -165,37 +181,33 @@ export async function updateClassified(
     id: string,
     classifiedData: Partial<Classified>
 ): Promise<Classified> {
-    await delay(1000);
+    const response = await fetch(`/api/classifieds/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(classifiedData),
+    });
 
-    const index = mockClassifieds.findIndex(
-        (classified) => classified.id === id
-    );
-    if (index === -1) {
-        throw new Error("Inzerát nebyl nalezen");
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update classified");
     }
 
-    const updatedClassified = {
-        ...mockClassifieds[index],
-        ...classifiedData,
-        updatedAt: new Date().toISOString(),
-    };
-
-    mockClassifieds[index] = updatedClassified;
-    return updatedClassified;
+    const data = await response.json();
+    return data.classified;
 }
 
 // Smazat inzerát
 export async function deleteClassified(id: string): Promise<void> {
-    await delay(1000);
+    const response = await fetch(`/api/classifieds/${id}`, {
+        method: "DELETE",
+    });
 
-    const index = mockClassifieds.findIndex(
-        (classified) => classified.id === id
-    );
-    if (index === -1) {
-        throw new Error("Inzerát nebyl nalezen");
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete classified");
     }
-
-    mockClassifieds.splice(index, 1);
 }
 
 // Získat všechny kategorie

@@ -3,7 +3,6 @@ export interface User {
     name: string;
     email: string;
     role: "user" | "admin";
-    image?: string | null;
 }
 
 export interface Classified {
@@ -29,4 +28,21 @@ export interface Category {
 export interface ClassifiedFilter {
     category?: string | null;
     query?: string | null;
+    userId?: string | null;
+    limit?: number;
+    skip?: number;
 }
+
+// export interface Advert {
+//     id: string;
+//     title: string;
+//     description: string;
+//     price: number;
+//     category: string;
+//     location: string;
+//     images: string[];
+//     userId: string;
+//     createdAt: string;
+//     updatedAt: string;
+//     // isActive: boolean;
+// }

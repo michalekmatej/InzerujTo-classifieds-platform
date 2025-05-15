@@ -103,13 +103,8 @@ export default function ClassifiedForm({
         setIsSubmitting(true);
 
         try {
-            // In a real app, you would upload the image to a storage service
-            // and get back a URL to store in the database
-            let imageUrl = values.imageUrl;
-            if (imageFile) {
-                // Simulate image upload
-                imageUrl = URL.createObjectURL(imageFile);
-            }
+            // We're removing image handling for now
+            const imageUrl = "/placeholder.svg?height=400&width=400";
 
             const classifiedData = {
                 ...values,
@@ -118,12 +113,14 @@ export default function ClassifiedForm({
             };
 
             if (classified) {
+                // Update existing classified
                 await updateClassified(classified.id, classifiedData);
                 toast({
                     title: "Inzerát aktualizován",
                     description: "Váš inzerát byl úspěšně aktualizován.",
                 });
             } else {
+                // Create new classified
                 await createClassified(classifiedData);
                 toast({
                     title: "Inzerát vytvořen",
@@ -131,8 +128,10 @@ export default function ClassifiedForm({
                 });
             }
 
-            router.push("/");
+            // Redirect after successful submission
+            router.push("/dashboard");
         } catch (error) {
+            console.error("Error submitting classified:", error);
             toast({
                 title: "Chyba",
                 description:

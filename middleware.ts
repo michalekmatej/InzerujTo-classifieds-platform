@@ -8,6 +8,7 @@ declare module "next-auth" {
     }
 }
 
+const unauthenticatedOnlyRoutes = ["/login", "/register"];
 const protectedRoutes = ["/dashboard", "/classifieds/new"];
 const adminRoutes = ["/admin"];
 
@@ -15,12 +16,24 @@ export default auth((req) => {
     const { pathname } = req.nextUrl;
     const { auth: session } = req;
 
+    console.log(`Middleware processing path: ${pathname}, session:`, 
+        session ? `User authenticated: ${!!session.user}` : "No session");
+
+    const isUnauthenticatedRoute = unauthenticatedOnlyRoutes.some((route) =>
+        pathname.startsWith(route)
+    );
     const isProtectedRoute = protectedRoutes.some((route) =>
         pathname.startsWith(route)
     );
     const isAdminRoute = adminRoutes.some((route) =>
         pathname.startsWith(route)
     );
+
+    if (isUnauthenticatedRoute) {
+        if (session?.user) {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
+    }
 
     if (isProtectedRoute) {
         if (!session?.user) {
@@ -31,7 +44,7 @@ export default auth((req) => {
     }
 
     if (isAdminRoute) {
-        if (!session?.user && session?.user?.role !== "admin") {
+        if (!session?.user || session?.user?.role !== "admin") {
             return NextResponse.redirect(new URL("/", req.url));
         }
     }

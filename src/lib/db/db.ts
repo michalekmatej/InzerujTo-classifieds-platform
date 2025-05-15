@@ -1,6 +1,7 @@
 "use server";
 
 import { User } from "@/lib/db/models/user";
+import { Classified } from "@/lib/types";
 import { Collection, Document, MongoClient } from "mongodb";
 
 if (!process.env.MONGODB_URI) {
@@ -31,7 +32,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // export default clientPromise;
-export default async function getMongoClient() {
+export default async function getDbClient() {
     return await clientPromise;
 }
 
@@ -46,4 +47,9 @@ export async function getCollection<T = any>(
 // function to get user collection
 export async function getUserCollection() {
     return getCollection<User>("users");
+}
+
+// function to get user collection
+export async function getClassifiedCollection() {
+    return getCollection<Classified>("adverts");
 }

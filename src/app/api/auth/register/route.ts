@@ -3,26 +3,15 @@ import { UserService } from "@/lib/db/models/user";
 
 export async function POST(req: Request) {
     try {
-        console.log("Registration: Starting registration process");
         const { email, password, name } = await req.json();
-        console.log(
-            `Registration: Received request for email: ${email}, name: ${name}`
-        );
-
         if (!email || !password || !name) {
-            console.log("Registration: Missing required fields");
             return NextResponse.json(
                 { message: "Missing required fields" },
                 { status: 400 }
             );
         }
 
-        // Použití centralizované UserService namísto přímého přístupu k MongoDB
-        console.log("Registration: Initializing UserService");
         const userService = await UserService.getInstance();
-
-        // Vytvoření uživatele přes UserService
-        console.log(`Registration: Creating user ${email}`);
         const result = await userService.createUser({
             name,
             email,
