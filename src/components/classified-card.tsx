@@ -36,9 +36,9 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
     };
 
     return (
-        <Link href={`/classifieds/${id}`}>
+        <Link href={`/classifieds/${id}`} className="h-full block">
             <Card
-                className="overflow-hidden transition-all hover:shadow-md"
+                className="overflow-hidden transition-all hover:shadow-md h-full flex flex-col"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
@@ -69,7 +69,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                         />
                     </Button>
                 </div>
-                <CardContent className="p-4">
+                <CardContent className="p-4 flex-grow">
                     <div className="mb-2 flex items-start justify-between gap-2">
                         <h3 className="line-clamp-2 font-medium hover:underline">
                             {title}
@@ -85,7 +85,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                         </span>
                     </div>
                 </CardContent>
-                <CardFooter className="border-t p-4 text-xs text-muted-foreground">
+                <CardFooter className="border-t p-4 text-xs text-muted-foreground mt-auto">
                     Přidáno {formattedDate}
                 </CardFooter>
             </Card>

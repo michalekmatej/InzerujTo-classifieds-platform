@@ -33,7 +33,7 @@ export default function ClassifiedsList() {
 
     if (isLoading) {
         return (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
                 {[...Array(6)].map((_, i) => (
                     <div
                         key={i}
@@ -58,7 +58,7 @@ export default function ClassifiedsList() {
     }
 
     return (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
             {classifieds.map((classified) => (
                 <ClassifiedCard key={classified.id} classified={classified} />
             ))}

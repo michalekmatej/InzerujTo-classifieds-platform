@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useFavorites } from "@/lib/favorites";
 import ClassifiedCard from "@/components/classified-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FavoritesList() {
-    const { favorites } = useFavorites();
+    const { favorites, isLoading } = useFavorites();
     const [mounted, setMounted] = useState(false);
 
     // prevent hydration mismatch
@@ -15,6 +16,23 @@ export default function FavoritesList() {
 
     if (!mounted) {
         return null;
+    }
+
+    if (isLoading) {
+        return (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="rounded-lg border p-4">
+                        <Skeleton className="h-40 w-full rounded-md" />
+                        <div className="mt-4 space-y-3">
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-5 w-1/4" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
     }
 
     if (favorites.length === 0) {
