@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getCategories } from "@/lib/api";
 import { useEffect, useState } from "react";
-import type { Category } from "@/lib/types";
+import type { Category, CategoryWithCount } from "@/lib/types";
 
 interface CategoryFilterProps {
     isMobile?: boolean;
@@ -23,7 +23,7 @@ interface CategoryFilterProps {
 export default function CategoryFilter({
     isMobile = false,
 }: CategoryFilterProps) {
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<CategoryWithCount[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(true);
 
@@ -36,7 +36,7 @@ export default function CategoryFilter({
             setIsLoading(true);
             try {
                 const data = await getCategories();
-                setCategories(data);
+                setCategories(data ? data : []);
             } catch (error) {
                 console.error("Failed to fetch categories:", error);
             } finally {

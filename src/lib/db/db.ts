@@ -1,7 +1,7 @@
 "use server";
 
 import { User } from "@/lib/db/models/user";
-import { Classified } from "@/lib/types";
+import { Category, Classified } from "@/lib/types";
 import { Collection, Document, MongoClient } from "mongodb";
 
 if (!process.env.MONGODB_URI) {
@@ -52,4 +52,9 @@ export async function getUserCollection() {
 // function to get user collection
 export async function getClassifiedCollection() {
     return getCollection<Classified>("adverts");
+}
+
+// function to get category collection
+export async function getCategoryCollection() {
+    return getCollection<Category>("categories");
 }

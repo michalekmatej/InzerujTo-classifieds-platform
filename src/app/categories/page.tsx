@@ -11,11 +11,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import SearchSkeleton from "@/components/search-skeleton";
 import { getCategories } from "@/lib/api";
-import type { Category } from "@/lib/types";
+import type { Category, CategoryWithCount } from "@/lib/types";
 
 export default function CategoriesPage() {
     const router = useRouter();
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<CategoryWithCount[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ export default function CategoriesPage() {
             setIsLoading(true);
             try {
                 const data = await getCategories();
-                setCategories(data);
+                setCategories(data ? data : []);
             } catch (error) {
                 console.error("Failed to fetch categories:", error);
             } finally {

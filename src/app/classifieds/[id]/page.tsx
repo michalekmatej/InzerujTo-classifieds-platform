@@ -12,6 +12,7 @@ import FavoriteButton from "@/components/favorite-button";
 import ClassifiedActions from "@/components/classified-actions";
 import { ClassifiedService } from "@/lib/db/models/classified";
 import { UserService } from "@/lib/db/models/user";
+import CategoryBadge from "@/components/category-badge";
 
 interface ClassifiedPageProps {
     params: {
@@ -81,7 +82,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
                     </div>
 
                     <div className="mb-4 flex items-center gap-2">
-                        <Badge variant="outline">{category}</Badge>
+                        <CategoryBadge categorySlug={category} />
                         <span className="inline-flex items-center text-sm text-muted-foreground">
                             <MapPin className="mr-1 h-4 w-4" />
                             {location}

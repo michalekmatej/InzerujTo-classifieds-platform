@@ -12,6 +12,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Classified } from "@/lib/types";
 import { useFavorites } from "@/lib/favorites";
+import CategoryBadge from "@/components/category-badge";
 
 interface ClassifiedCardProps {
     classified: Classified;
@@ -79,7 +80,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Badge variant="outline">{category}</Badge>
+                        <CategoryBadge categorySlug={category} />
                         <span className="text-xs text-muted-foreground">
                             {location}
                         </span>

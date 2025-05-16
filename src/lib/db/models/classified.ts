@@ -1,8 +1,8 @@
 import { Collection, ObjectId } from "mongodb";
 import { getClassifiedCollection } from "@/lib/db/db";
 import { Category, Classified, ClassifiedFilter } from "@/lib/types";
+import { categories } from "@/lib/api";
 
-// Centralized classified logic
 export class ClassifiedService {
     private classifiedCollection: Collection<Classified>;
     private static instance: ClassifiedService;
@@ -32,7 +32,7 @@ export class ClassifiedService {
                 return null;
             }
 
-            // Transform MongoDB _id to id expected by frontend
+            // transform MongoDB _id to id expected by frontend
             const { _id, ...rest } = classified as any;
             return {
                 id: _id.toString(),
@@ -48,7 +48,7 @@ export class ClassifiedService {
         try {
             let query: any = {};
 
-            // Apply filters
+            // apply filters
             if (filter?.category) {
                 query.category = filter.category;
             }
@@ -58,7 +58,7 @@ export class ClassifiedService {
             }
 
             if (filter?.query) {
-                // Text search across multiple fields
+                // text search across multiple fields
                 const searchRegex = new RegExp(filter.query, "i");
                 query.$or = [
                     { title: { $regex: searchRegex } },
@@ -67,7 +67,7 @@ export class ClassifiedService {
                 ];
             }
 
-            // Create and execute query
+            // create and execute query
             const limit = filter?.limit || 20;
             const skip = filter?.skip || 0;
 
@@ -227,7 +227,7 @@ export class ClassifiedService {
                 .sort({ createdAt: -1 })
                 .toArray();
 
-            // Transform MongoDB _id to id expected by frontend
+            // transform MongoDB _id to id expected by frontend
             return classifieds.map((classified) => {
                 const { _id, ...rest } = classified as any;
                 return {
@@ -243,43 +243,43 @@ export class ClassifiedService {
 
     async getCategoriesWithCounts(): Promise<Category[]> {
         try {
-            // Aggregate classifieds to group by category and count them
+            // aggregate classifieds to group by category and count them
             const categoryCounts = await this.classifiedCollection
                 .aggregate([
-                    // Group by category
+                    // group by category
                     {
                         $group: {
                             _id: "$category",
                             count: { $sum: 1 },
                         },
                     },
-                    // Sort by category name for consistency
+                    // sort by category name for consistency
                     {
                         $sort: { _id: 1 },
                     },
                 ])
                 .toArray();
-
-            // Transform the aggregation result into the Category format
-            const categories: Category[] = categoryCounts.map((result: any) => {
-                const categoryName = result._id;
-                // Convert the category name to a slug (for URL purposes)
-                const slug = categoryName
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^\w\s]/g, "")
-                    .replace(/\s+/g, "-");
-
+            
+            const categoriesWithCount: Omit<Category, "name">[] = categoryCounts.map((result: any) => {
+                const slug = result._id;
                 return {
-                    id: slug, // Using slug as ID for simplicity
-                    name: categoryName,
+                    id: slug, // using slug as ID for simplicity
                     slug: slug,
                     count: result.count,
                 };
             });
 
-            return categories;
+            // add name from categories to categoriesWithCount
+            const categoriesWithName = categoriesWithCount.map((category) => {
+                const categoryData = categories.find(
+                    (cat) => cat.slug === category.slug
+                );
+                return {
+                    ...category,
+                    name: categoryData ? categoryData.name : category.slug,
+                };
+            });
+            return categoriesWithName;
         } catch (error) {
             console.error("Error getting categories with counts:", error);
             return [];

@@ -1,17 +1,15 @@
-import type { Classified, ClassifiedFilter, Category } from "./types";
+import type { Classified, ClassifiedFilter, Category, CategoryWithCount } from "./types";
 
 
 // Vzorová data pro kategorie
-const mockCategories: Category[] = [
-    { id: "1", name: "Elektronika", slug: "elektronika", count: 2 },
-    { id: "2", name: "Vozidla", slug: "vozidla", count: 1 },
-    { id: "3", name: "Nábytek", slug: "nabytek", count: 1 },
-    { id: "4", name: "Bydlení", slug: "bydleni", count: 1 },
-    { id: "5", name: "Sport a outdoor", slug: "sport", count: 1 },
+export const categories: Category[] = [
+    { id: "1", name: "Elektronika", slug: "elektronika" },
+    { id: "2", name: "Vozidla", slug: "vozidla" },
+    { id: "3", name: "Nábytek", slug: "nabytek" },
+    { id: "4", name: "Bydlení", slug: "bydleni" },
+    { id: "5", name: "Sport", slug: "sport" },
 ];
 
-// Simulace zpoždění API
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Získat všechny inzeráty s volitelným filtrováním
 export async function getClassifieds(
@@ -122,7 +120,7 @@ export async function deleteClassified(id: string): Promise<void> {
 }
 
 // Získat všechny kategorie
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(): Promise<CategoryWithCount[] | null> {
     try {
         const response = await fetch("/api/categories");
 
@@ -135,7 +133,6 @@ export async function getCategories(): Promise<Category[]> {
         return data.categories || [];
     } catch (error) {
         console.error("Error fetching categories:", error);
-        // Return mock data as fallback in case of error
-        return mockCategories;
+        return null;
     }
 }

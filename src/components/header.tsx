@@ -59,7 +59,7 @@ export default function Header() {
                     </nav>
                     <div className="flex items-center gap-2">
                         {user && (
-                            <span className="text-muted-foreground text-sm">
+                            <span className="text-muted-foreground text-sm md:hidden lg:block">
                                 {user?.name}
                             </span>
                         )}
@@ -152,7 +152,7 @@ export default function Header() {
                             {user ? (
                                 <>
                                     <span className="text-muted-foreground text-sm text-center mb-3">
-                                        {user?.email}
+                                        {user?.name}
                                     </span>
                                     <Button
                                         variant="outline"
