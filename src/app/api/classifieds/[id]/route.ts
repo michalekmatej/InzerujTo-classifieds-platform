@@ -48,6 +48,8 @@ export async function PUT(
         // Get the classified service
         const classifiedService = await ClassifiedService.getInstance();
 
+        console.log("PUT", id);
+
         // First check if the classified exists and belongs to the user
         const existingClassified = await classifiedService.findById(id);
 

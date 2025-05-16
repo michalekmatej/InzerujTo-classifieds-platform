@@ -61,7 +61,7 @@ export default function DashboardClassifiedsList({
                                 <div className="relative h-16 w-16 overflow-hidden rounded-md">
                                     <Image
                                         src={
-                                            classified.imageUrl ||
+                                            (classified.images && classified.images[0] && classified.images[0].url) ||
                                             "/placeholder.svg?height=64&width=64"
                                         }
                                         alt={classified.title}

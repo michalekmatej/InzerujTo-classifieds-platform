@@ -19,7 +19,7 @@ interface ClassifiedCardProps {
 }
 
 export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
-    const { id, title, price, category, location, createdAt, imageUrl } =
+    const { id, title, price, category, location, createdAt, images } =
         classified;
     const { isFavorite, toggleFavorite } = useFavorites();
     const [isHovered, setIsHovered] = useState(false);
@@ -46,7 +46,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                 <div className="relative aspect-square">
                     <Image
                         src={
-                            imageUrl || "/placeholder.svg?height=300&width=300"
+                            (images && images[0]) ? images[0].url : "/placeholder.svg?height=300&width=300"
                         }
                         alt={title}
                         fill

@@ -2,12 +2,13 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, X, Upload, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,9 +30,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { createClassified, updateClassified, getCategories } from "@/lib/api";
-import type { Classified, Category } from "@/lib/types";
-import { useEffect } from "react";
+import {
+    createClassified,
+    updateClassified,
+    getCategories,
+    uploadImages,
+} from "@/lib/api";
+import type { Classified, Category, Image as ImageType } from "@/lib/types";
 
 const formSchema = z.object({
     title: z.string().min(5, "Název musí mít alespoň 5 znaků").max(100),
@@ -39,7 +44,6 @@ const formSchema = z.object({
     price: z.coerce.number().positive("Cena musí být kladné číslo"),
     category: z.string().min(1, "Vyberte prosím kategorii"),
     location: z.string().min(3, "Lokalita musí mít alespoň 3 znaky"),
-    imageUrl: z.string().optional(),
 });
 
 interface ClassifiedFormProps {
@@ -52,9 +56,10 @@ export default function ClassifiedForm({
     classified,
 }: ClassifiedFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(
-        classified?.imageUrl || null
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [existingImages, setExistingImages] = useState<ImageType[]>(
+        classified?.images || []
     );
     const [categories, setCategories] = useState<Category[]>([]);
     const router = useRouter();
@@ -68,7 +73,6 @@ export default function ClassifiedForm({
             price: classified?.price || 0,
             category: classified?.category || "",
             location: classified?.location || "",
-            imageUrl: classified?.imageUrl || "",
         },
     });
 
@@ -76,7 +80,9 @@ export default function ClassifiedForm({
         const fetchCategories = async () => {
             try {
                 const data = await getCategories();
-                setCategories(data);
+                if (data) {
+                    setCategories(data);
+                }
             } catch (error) {
                 console.error("Failed to fetch categories:", error);
             }
@@ -84,48 +90,136 @@ export default function ClassifiedForm({
 
         fetchCategories();
     }, []);
-
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
-        setImageFile(file);
+        // Validate file size and type
+        const validFiles: File[] = [];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const validTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+        ];
 
-        // Create preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        Array.from(files).forEach((file) => {
+            if (file.size > maxSize) {
+                toast({
+                    title: "Soubor je příliš velký",
+                    description: `${file.name} je větší než 5MB a nebude nahrán.`,
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            if (!validTypes.includes(file.type)) {
+                toast({
+                    title: "Nepodporovaný formát",
+                    description: `${file.name} není v podporovaném formátu (JPG, PNG, WebP, GIF).`,
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            validFiles.push(file);
+        });
+
+        if (validFiles.length === 0) return;
+
+        setImageFiles((prev) => [...prev, ...validFiles]);
+
+        // Create previews for new files
+        validFiles.forEach((file) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prev) => [...prev, reader.result as string]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeImagePreview = (index: number) => {
+        setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+        setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingImage = (index: number) => {
+        setExistingImages((prev) => prev.filter((_, i) => i !== index));
+        // In a real implementation, you might want to make an API call to delete the image
     };
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true);
 
         try {
-            // We're removing image handling for now
-            const imageUrl = "/placeholder.svg?height=400&width=400";
-
-            const classifiedData = {
+            let classifiedData: Partial<Classified> = {
                 ...values,
-                imageUrl,
                 userId,
+                images: existingImages, // Include existing images that weren't removed
             };
 
+            let classifiedId: string;
             if (classified) {
                 // Update existing classified
-                await updateClassified(classified.id, classifiedData);
+                const updatedClassified = await updateClassified(
+                    classified.id,
+                    classifiedData
+                );
+
+                // Ensure we have a valid ID before proceeding
+                if (!updatedClassified || !updatedClassified.id) {
+                    throw new Error("Failed to get updated classified ID");
+                }
+
+                classifiedId = updatedClassified.id;
                 toast({
                     title: "Inzerát aktualizován",
                     description: "Váš inzerát byl úspěšně aktualizován.",
                 });
             } else {
                 // Create new classified
-                await createClassified(classifiedData);
+                const newClassified = await createClassified(classifiedData);
+
+                // Ensure we have a valid ID before proceeding
+                if (!newClassified || !newClassified.id) {
+                    throw new Error("Failed to get created classified ID");
+                }
+
+                classifiedId = newClassified.id;
                 toast({
                     title: "Inzerát vytvořen",
                     description: "Váš inzerát byl úspěšně vytvořen.",
                 });
+            } // Upload images if any
+            if (imageFiles.length > 0 && classifiedId) {
+                // Log the current state
+                console.log("Uploading images for classified:", classifiedId);
+
+                // Upload images
+                const uploadedImages = await uploadImages(
+                    classifiedId,
+                    imageFiles,
+                    // Mark as cover if no existing images
+                    existingImages.length === 0
+                );
+
+                toast({
+                    title: "Obrázky nahrány",
+                    description: `Úspěšně nahráno ${uploadedImages.length} obrázků.`,
+                });
+
+                // Update the classified with the uploaded images
+                if (uploadedImages.length > 0 && classifiedId) {
+                    console.log(
+                        "Updating classified with images:",
+                        classifiedId
+                    );
+                    await updateClassified(classifiedId, {
+                        images: [...existingImages, ...uploadedImages],
+                    });
+                }
             }
 
             // Redirect after successful submission
@@ -257,43 +351,136 @@ export default function ClassifiedForm({
                     )}
                 />
 
-                <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Obrázek</FormLabel>
-                            <FormControl>
-                                <div className="grid gap-4">
-                                    <Input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="cursor-pointer"
-                                    />
-                                    {imagePreview && (
-                                        <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-md border">
-                                            <img
-                                                src={
-                                                    imagePreview ||
-                                                    "/placeholder.svg"
-                                                }
-                                                alt="Náhled"
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </div>
-                                    )}
-                                    <Input type="hidden" {...field} />
+                <div className="space-y-4">
+                    <div>
+                        <FormLabel>Obrázky</FormLabel>
+                        <FormDescription>
+                            Nahrajte obrázky vašeho předmětu. Můžete nahrát více
+                            obrázků. První obrázek bude použit jako hlavní
+                            náhled. Max. velikost: 5MB/obrázek.
+                        </FormDescription>
+                        <div className="mt-2 grid gap-4">
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="cursor-pointer"
+                                multiple
+                            />{" "}
+                            {/* Display existing images */}
+                            {existingImages.length > 0 && (
+                                <div>
+                                    <h4 className="mb-2 font-medium">
+                                        Existující obrázky
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                                        {existingImages.map((image, index) => (
+                                            <div
+                                                key={image.id}
+                                                className="relative aspect-square rounded-md border bg-muted"
+                                            >
+                                                <Image
+                                                    src={image.url}
+                                                    alt={`Obrázek ${index + 1}`}
+                                                    fill
+                                                    className="object-cover rounded-md"
+                                                />
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute right-1 top-1 h-6 w-6"
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeExistingImage(
+                                                            index
+                                                        )
+                                                    }
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                                {image.isCover ? (
+                                                    <span className="absolute bottom-1 left-1 rounded-sm bg-primary px-1 py-0.5 text-[10px] font-medium text-primary-foreground">
+                                                        Hlavní
+                                                    </span>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="absolute bottom-1 left-1 h-6 px-2 py-1 text-[10px] bg-white/80 hover:bg-white"
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const updatedImages =
+                                                                existingImages.map(
+                                                                    (
+                                                                        img,
+                                                                        i
+                                                                    ) => ({
+                                                                        ...img,
+                                                                        isCover:
+                                                                            i ===
+                                                                            index,
+                                                                    })
+                                                                );
+                                                            setExistingImages(
+                                                                updatedImages
+                                                            );
+                                                        }}
+                                                    >
+                                                        <ImageIcon className="mr-1 h-3 w-3" />
+                                                        Nastavit jako hlavní
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </FormControl>
-                            <FormDescription>
-                                Nahrajte jasný obrázek vašeho předmětu. Max.
-                                velikost: 5MB.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                            )}
+                            {/* Display image previews */}
+                            {imagePreviews.length > 0 && (
+                                <div>
+                                    <h4 className="mb-2 font-medium">
+                                        Nové obrázky
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                                        {imagePreviews.map((preview, index) => (
+                                            <div
+                                                key={index}
+                                                className="relative aspect-square rounded-md border bg-muted"
+                                            >
+                                                <Image
+                                                    src={preview}
+                                                    alt={`Náhled ${index + 1}`}
+                                                    fill
+                                                    className="object-cover rounded-md"
+                                                />
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute right-1 top-1 h-6 w-6"
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeImagePreview(
+                                                            index
+                                                        )
+                                                    }
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                                {index === 0 &&
+                                                    existingImages.length ===
+                                                        0 && (
+                                                        <span className="absolute bottom-1 left-1 rounded-sm bg-primary px-1 py-0.5 text-[10px] font-medium text-primary-foreground">
+                                                            Hlavní
+                                                        </span>
+                                                    )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
                 <Button
                     type="submit"

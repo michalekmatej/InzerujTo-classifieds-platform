@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -13,6 +12,7 @@ import ClassifiedActions from "@/components/classified-actions";
 import { ClassifiedService } from "@/lib/db/models/classified";
 import { UserService } from "@/lib/db/models/user";
 import CategoryBadge from "@/components/category-badge";
+import PhotoGallery from "@/components/photo-gallery";
 
 interface ClassifiedPageProps {
     params: {
@@ -25,6 +25,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
     const { id } = await params;
     const classified = await classifiedsService.findById(id);
 
+    console.log(classified);
     if (!classified) {
         notFound();
     }
@@ -36,7 +37,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
         category,
         location,
         createdAt,
-        imageUrl,
+        images,
         userId,
     } = classified;
 
@@ -61,17 +62,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
             </div>
 
             <div className="grid gap-8 md:grid-cols-2">
-                <div className="relative aspect-square overflow-hidden rounded-lg">
-                    <Image
-                        src={
-                            imageUrl || "/placeholder.svg?height=600&width=600"
-                        }
-                        alt={title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                </div>
+                <PhotoGallery images={images || []} title={title} />
 
                 <div className="flex flex-col">
                     <div className="mb-4 flex items-start justify-between">

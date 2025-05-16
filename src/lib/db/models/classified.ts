@@ -90,7 +90,6 @@ export class ClassifiedService {
             return [];
         }
     }
-
     async createClassified(
         classifiedData: Omit<Classified, "id" | "createdAt" | "updatedAt">
     ): Promise<{ success: boolean; classified?: Classified; error?: string }> {
@@ -121,7 +120,14 @@ export class ClassifiedService {
                 };
             }
 
-            return { success: true, classified: createdClassified };
+            // Transform MongoDB _id to id expected by frontend
+            const { _id, ...rest } = createdClassified as any;
+            const transformedClassified = {
+                id: _id.toString(),
+                ...rest,
+            };
+
+            return { success: true, classified: transformedClassified };
         } catch (error) {
             console.error("Error creating classified:", error);
             return {
@@ -144,7 +150,6 @@ export class ClassifiedService {
                 ...updates,
                 updatedAt: new Date().toISOString(),
             };
-
             const result = await this.classifiedCollection.findOneAndUpdate(
                 { _id: objectId },
                 { $set: updateData },
@@ -155,7 +160,14 @@ export class ClassifiedService {
                 return { success: false, error: "Classified not found" };
             }
 
-            return { success: true, classified: result };
+            // Transform MongoDB _id to id expected by frontend
+            const { _id, ...rest } = result as any;
+            const transformedClassified = {
+                id: _id.toString(),
+                ...rest,
+            };
+
+            return { success: true, classified: transformedClassified };
         } catch (error) {
             console.error("Error updating classified:", error);
             return { success: false, error: "Failed to update classified" };
@@ -259,15 +271,16 @@ export class ClassifiedService {
                     },
                 ])
                 .toArray();
-            
-            const categoriesWithCount: Omit<Category, "name">[] = categoryCounts.map((result: any) => {
-                const slug = result._id;
-                return {
-                    id: slug, // using slug as ID for simplicity
-                    slug: slug,
-                    count: result.count,
-                };
-            });
+
+            const categoriesWithCount: Omit<Category, "name">[] =
+                categoryCounts.map((result: any) => {
+                    const slug = result._id;
+                    return {
+                        id: slug, // using slug as ID for simplicity
+                        slug: slug,
+                        count: result.count,
+                    };
+                });
 
             // add name from categories to categoriesWithCount
             const categoriesWithName = categoriesWithCount.map((category) => {
