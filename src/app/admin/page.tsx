@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Card,
@@ -18,11 +19,24 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Classified, User, CategoryWithCount } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { BarChart, PieChart } from "lucide-react";
+import { BarChart, PieChart, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { deleteClassified } from "@/lib/api";
 
 interface AdminStats {
     userCount: number;
@@ -45,6 +59,7 @@ export default function AdminPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const { data: session } = useSession();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!session?.user || session?.user?.role !== "admin") {
@@ -87,21 +102,34 @@ export default function AdminPage() {
     }, [router, session]);
 
     const handleDeleteClassified = async (id: string) => {
-        if (!confirm("Opravdu chcete smazat tento inzerát?")) return;
-
         try {
-            await fetch(`/api/classifieds/${id}`, {
-                method: "DELETE",
-            });
+            await deleteClassified(id);
 
             // Update the list after deletion
             setClassifieds(classifieds.filter((item) => item.id !== id));
 
-            // Show success alert using the browser's built-in alert
-            alert("Inzerát byl úspěšně smazán");
+            // Also update recent items if needed
+            if (recentItems?.classifieds) {
+                setRecentItems({
+                    ...recentItems,
+                    classifieds: recentItems.classifieds.filter(
+                        (item) => item.id !== id
+                    ),
+                });
+            }
+
+            toast({
+                title: "Inzerát smazán",
+                description: "Inzerát byl úspěšně smazán.",
+            });
         } catch (err) {
             console.error("Error deleting classified:", err);
-            setError("Nepodařilo se smazat inzerát");
+            toast({
+                title: "Chyba",
+                description:
+                    "Nepodařilo se smazat inzerát. Zkuste to prosím znovu.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -214,20 +242,27 @@ export default function AdminPage() {
                                     key={classified.id}
                                     className="border-b pb-2"
                                 >
-                                    <div className="font-medium text-sm">
-                                        {classified.title}
-                                    </div>
-                                    <div className="flex text-xs text-muted-foreground">
-                                        <span className="flex-1">
-                                            {classified.category}
-                                        </span>
-                                        <span className="flex-1">
-                                            {formatPrice(classified.price)}
-                                        </span>
-                                        <span className="text-end">
-                                            {formatDate(classified.createdAt)}
-                                        </span>
-                                    </div>
+                                    <Link
+                                        href={`/classifieds/${classified.id}`}
+                                        className="block"
+                                    >
+                                        <div className="font-medium text-sm hover:underline">
+                                            {classified.title}
+                                        </div>
+                                        <div className="flex text-xs text-muted-foreground">
+                                            <span className="flex-1">
+                                                {classified.category}
+                                            </span>
+                                            <span className="flex-1">
+                                                {formatPrice(classified.price)}
+                                            </span>
+                                            <span className="text-end">
+                                                {formatDate(
+                                                    classified.createdAt
+                                                )}
+                                            </span>
+                                        </div>
+                                    </Link>
                                 </div>
                             ))}
                         </div>
@@ -320,7 +355,12 @@ export default function AdminPage() {
                                         {classifieds.map((classified) => (
                                             <TableRow key={classified.id}>
                                                 <TableCell className="font-medium text-sm">
-                                                    {classified.title}
+                                                    <Link
+                                                        href={`/classifieds/${classified.id}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {classified.title}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell className="text-sm">
                                                     {classified.category}
@@ -352,18 +392,54 @@ export default function AdminPage() {
                                                         >
                                                             Zobrazit
                                                         </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="destructive"
-                                                            className="h-8 text-xs"
-                                                            onClick={() =>
-                                                                handleDeleteClassified(
-                                                                    classified.id
-                                                                )
-                                                            }
-                                                        >
-                                                            Smazat
-                                                        </Button>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="destructive"
+                                                                    className="h-8 text-xs"
+                                                                >
+                                                                    <Trash2 className="mr-1 h-3 w-3" />
+                                                                    Smazat
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>
+                                                                        Jste si
+                                                                        jistí?
+                                                                    </AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        Tuto
+                                                                        akci
+                                                                        nelze
+                                                                        vrátit
+                                                                        zpět.
+                                                                        Inzerát
+                                                                        bude
+                                                                        trvale
+                                                                        smazán.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>
+                                                                        Zrušit
+                                                                    </AlertDialogCancel>
+                                                                    <AlertDialogAction
+                                                                        onClick={() =>
+                                                                            handleDeleteClassified(
+                                                                                classified.id
+                                                                            )
+                                                                        }
+                                                                        className="bg-destructive text-destructive-foreground"
+                                                                    >
+                                                                        Smazat
+                                                                    </AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
