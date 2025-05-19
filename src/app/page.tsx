@@ -56,7 +56,7 @@ export default function HomePage() {
                             Najděte, co potřebujete
                         </h1>
                         <p className="text-muted-foreground md:mt-2 md:-mb-6">
-                            Procházejte tisíce inzerátů
+                            Prohlížejte všechny dostupné inzeráty
                         </p>
                     </div>
                     <Link href="/classifieds/new">

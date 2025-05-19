@@ -14,6 +14,7 @@ import { ClassifiedService } from "@/lib/db/models/classified";
 import { UserService } from "@/lib/db/models/user";
 import CategoryBadge from "@/components/category-badge";
 import PhotoGallery from "@/components/photo-gallery";
+import ContactSellerButton from "@/components/contact-seller-button";
 
 interface ClassifiedPageProps {
     params: {
@@ -111,9 +112,17 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
 
                         <ClassifiedActions classified={classified} />
 
-                        <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                            Kontaktovat prodejce
-                        </Button>
+                        <ContactSellerButton
+                            user={
+                                user
+                                    ? {
+                                          name: user.name,
+                                          email: user.email,
+                                      }
+                                    : null
+                            }
+                            location={location}
+                        />
                     </div>
                 </div>
             </div>
