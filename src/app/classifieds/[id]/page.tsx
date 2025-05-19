@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import { ArrowLeft, MapPin, User } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -82,7 +83,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
 
                     <div className="mb-6">
                         <span className="text-3xl font-bold text-orange-600">
-                            {price.toLocaleString()} Kč
+                            {formatPrice(price)}
                         </span>
                     </div>
 

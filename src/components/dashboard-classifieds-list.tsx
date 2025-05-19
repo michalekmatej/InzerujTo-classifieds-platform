@@ -3,6 +3,7 @@ import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import { Pencil } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,7 +62,9 @@ export default function DashboardClassifiedsList({
                                 <div className="relative h-16 w-16 overflow-hidden rounded-md">
                                     <Image
                                         src={
-                                            (classified.images && classified.images[0] && classified.images[0].url) ||
+                                            (classified.images &&
+                                                classified.images[0] &&
+                                                classified.images[0].url) ||
                                             "/placeholder.svg?height=64&width=64"
                                         }
                                         alt={classified.title}
@@ -84,7 +87,7 @@ export default function DashboardClassifiedsList({
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                {classified.price.toLocaleString()} Kč
+                                {formatPrice(classified.price)}
                             </TableCell>
                             <TableCell>
                                 {formatDistanceToNow(

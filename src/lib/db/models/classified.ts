@@ -298,4 +298,25 @@ export class ClassifiedService {
             return [];
         }
     }
+
+    async getRecentClassifieds(limit: number = 5): Promise<Classified[]> {
+        try {
+            const classifieds = await this.classifiedCollection
+                .find()
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .toArray();
+
+            return classifieds.map((classified) => {
+                const { _id, ...rest } = classified as any;
+                return {
+                    id: _id.toString(),
+                    ...rest,
+                };
+            });
+        } catch (error) {
+            console.error("Error fetching recent classifieds:", error);
+            return [];
+        }
+    }
 }

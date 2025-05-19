@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

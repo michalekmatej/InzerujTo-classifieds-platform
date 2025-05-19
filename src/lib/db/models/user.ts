@@ -208,6 +208,29 @@ export class UserService {
             return [];
         }
     }
+    async getAllUsers(): Promise<User[]> {
+        try {
+            const users = await this.userCollection.find().toArray();
+            return users.map((user) => {
+                const { _id, password, ...rest } = user as any;
+                return {
+                    id: _id.toString(),
+                    ...rest,
+                    // Convert dates to strings for consistent API
+                    createdAt: rest.createdAt
+                        ? rest.createdAt.toISOString()
+                        : undefined,
+                    updatedAt: rest.updatedAt
+                        ? rest.updatedAt.toISOString()
+                        : undefined,
+                    // Don't return password hash
+                };
+            });
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            return [];
+        }
+    }
 
     async deleteUser(
         userId: string
@@ -229,6 +252,52 @@ export class UserService {
         } catch (error) {
             console.error("Error deleting user:", error);
             return { success: false, error: "Failed to delete user" };
+        }
+    }
+
+    async countUsers(): Promise<number> {
+        try {
+            return await this.userCollection.countDocuments();
+        } catch (error) {
+            console.error("Error counting users:", error);
+            return 0;
+        }
+    }
+
+    async countUsersByRole(role: "user" | "admin"): Promise<number> {
+        try {
+            return await this.userCollection.countDocuments({ role });
+        } catch (error) {
+            console.error(`Error counting users with role ${role}:`, error);
+            return 0;
+        }
+    }
+    async getRecentUsers(limit: number = 5): Promise<User[]> {
+        try {
+            const users = await this.userCollection
+                .find()
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .toArray();
+
+            return users.map((user) => {
+                const { _id, password, ...rest } = user as any;
+                return {
+                    id: _id.toString(),
+                    ...rest,
+                    // Convert dates to strings for consistent API
+                    createdAt: rest.createdAt
+                        ? rest.createdAt.toISOString()
+                        : undefined,
+                    updatedAt: rest.updatedAt
+                        ? rest.updatedAt.toISOString()
+                        : undefined,
+                    // Don't return password hash
+                };
+            });
+        } catch (error) {
+            console.error("Error fetching recent users:", error);
+            return [];
         }
     }
 }
