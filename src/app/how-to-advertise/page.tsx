@@ -6,17 +6,16 @@ import {
     DollarSign,
     ClipboardList,
     MapPin,
-    UserCheck,
-    Plus,
     Info,
     Check,
-    ExternalLink,
+    Shield,
 } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { FeatureCard } from "@/components/feature-card";
+import { StepGuideItem } from "@/components/step-guide-item";
+import { InfoBox } from "@/components/info-box";
 import Link from "next/link";
 
 export default function HowToAdvertisePage() {
@@ -45,13 +44,12 @@ export default function HowToAdvertisePage() {
                         i obyčejný předmět může najít nového majitele během pár
                         hodin - stačí vědět, jak na to!
                     </p>
-
                     <h2 className="text-2xl font-bold mt-12 mb-4 flex items-center">
                         <Info className="h-6 w-6 mr-2 text-primary" />
                         Proč záleží na tom, jak inzerujete?
                     </h2>
                     <p>
-                        Možná si říkáte, že stačí napsat „Prodám kolo" a čekat,
+                        Možná si říkáte, že stačí napsat „Prodám kolo“ a čekat,
                         až se někdo ozve. Jenže ve světě online inzerce je velká
                         konkurence. Každý den přibývají stovky nových nabídek a
                         vy chcete, aby ta vaše nezapadla, ale naopak zaujala na
@@ -59,83 +57,49 @@ export default function HowToAdvertisePage() {
                         jako výloha v obchodě - buď kolemjdoucí zaujme, nebo
                         projdou bez povšimnutí.
                     </p>
-
                     <h2 className="text-2xl font-bold mt-12 mb-6 flex items-center">
                         <Check className="h-6 w-6 mr-2 text-primary" />
                         Osvědčené tipy, jak zaujmout
                     </h2>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <Card className="p-5 pl-3 shadow-sm border-l-4 border-l-orange-500">
-                            <div className="flex items-center">
-                                <FileText className="h-10 w-10 text-orange-500 mr-3" />
-                                <div>
-                                    <strong>Buďte upřímní a konkrétní:</strong>{" "}
-                                    Nepřikrášlujte, ale ani nezamlčujte. Zájemci
-                                    ocení, když ví, do čeho jdou.
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className="p-5 pl-3 shadow-sm border-l-4 border-l-orange-500">
-                            <div className="flex items-center">
-                                <Camera className="h-10 w-10 text-orange-500 mr-3" />
-                                <div>
-                                    <strong>Fotka je polovina úspěchu:</strong>{" "}
-                                    Klidně použijte mobil, ale fotku udělejte za
-                                    denního světla a z více úhlů. Lidé chtějí
-                                    vidět, co kupují.
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className="p-5 pl-3 shadow-sm border-l-4 border-l-orange-500">
-                            <div className="flex items-center">
-                                <DollarSign className="h-10 w-10 text-orange-500 mr-3" />
-                                <div>
-                                    <strong>Cena? Inspirujte se:</strong>{" "}
-                                    Projděte si podobné inzeráty a nastavte cenu
-                                    tak, aby byla férová, ale zároveň
-                                    konkurenceschopná.
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className="p-5 pl-3 shadow-sm border-l-4 border-l-orange-500">
-                            <div className="flex items-center">
-                                <ClipboardList className="h-10 w-10 text-orange-500 mr-3" />
-                                <div>
-                                    <strong>Nebojte se detailů:</strong> Uveďte
-                                    stáří, stav, důvod prodeje, rozměry, barvu,
-                                    cokoliv, co byste sami chtěli vědět.
-                                </div>
-                            </div>
-                        </Card>
-                        <Card className="md:col-span-2 p-5 pl-3 shadow-sm border-l-4 border-l-orange-500">
-                            <div className="flex items-center">
-                                <MapPin className="h-10 w-10 text-orange-500 mr-3" />
-                                <div>
-                                    <strong>Lokalita a kontakt:</strong> Uveďte,
-                                    odkud jste a jak vás mohou zájemci
-                                    kontaktovat. Ušetříte si spoustu zbytečných
-                                    dotazů.
-                                </div>
-                            </div>
-                        </Card>
+                        <FeatureCard
+                            icon={FileText}
+                            title="Buďte upřímní a konkrétní:"
+                            description="Nepřikrášlujte, ale ani nezamlčujte. Zájemci ocení, když ví, do čeho jdou."
+                        />
+                        <FeatureCard
+                            icon={Camera}
+                            title="Fotka je polovina úspěchu:"
+                            description="Klidně použijte mobil, ale fotku udělejte za denního světla a z více úhlů. Lidé chtějí vidět, co kupují."
+                        />
+                        <FeatureCard
+                            icon={DollarSign}
+                            title="Cena? Inspirujte se:"
+                            description="Projděte si podobné inzeráty a nastavte cenu tak, aby byla férová, ale zároveň konkurenceschopná."
+                        />
+                        <FeatureCard
+                            icon={ClipboardList}
+                            title="Nebojte se detailů:"
+                            description="Uveďte stáří, stav, důvod prodeje, rozměry, barvu, cokoliv, co byste sami chtěli vědět."
+                        />
+                        <FeatureCard
+                            icon={MapPin}
+                            title="Lokalita a kontakt:"
+                            description="Uveďte, odkud jste a jak vás mohou zájemci kontaktovat. Ušetříte si spoustu zbytečných dotazů."
+                            fullWidth
+                        />
                     </div>
-
                     <h2 className="text-3xl font-bold mt-16 mb-8 text-center">
                         Krok za krokem - Jak vložit inzerát
                     </h2>
-
                     <div className="space-y-4">
-                        <div className="py-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-semibold">
-                                    1. Přihlaste se / zaregistrujte se
-                                </h3>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href="/register">Registrovat se</a>
-                                </Button>
-                            </div>
-                            <p className="mb-4">
+                        <StepGuideItem
+                            number="1"
+                            title="Přihlaste se / zaregistrujte se"
+                            buttonLabel="Registrovat se"
+                            buttonLink="/register"
+                        >
+                            <p>
                                 Než začnete, je potřeba mít uživatelský účet.
                                 Pokud jej ještě nemáte, registrace vám zabere
                                 pár minut, stačí zadat e-mail, zvolit heslo a
@@ -143,40 +107,33 @@ export default function HowToAdvertisePage() {
                                 přístup ke všem funkcím platformy, především k
                                 přidávání nových inzerátů a jejich správě.
                             </p>
-                            <Separator className="mt-4" />
-                        </div>
+                        </StepGuideItem>
 
-                        <div className="py-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-semibold">
-                                    2. Klikněte na tlačítko „Přidat inzerát"
-                                </h3>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href="/classifieds/new">
-                                        Přidat inzerát
-                                    </a>
-                                </Button>
-                            </div>
-                            <p className="mb-4">
+                        <StepGuideItem
+                            number="2"
+                            title="Klikněte na tlačítko „Přidat inzerát“"
+                            buttonLabel="Přidat inzerát"
+                            buttonLink="/classifieds/new"
+                        >
+                            <p>
                                 Na hlavní stránce nebo v uživatelském menu
-                                najdete výrazné tlačítko „Přidat inzerát". Po
+                                najdete výrazné tlačítko „Přidat inzerát“. Po
                                 jeho kliknutí se otevře jednoduchý formulář, kde
                                 zadáte všechny potřebné údaje o své nabídce.
                             </p>
-                            <Separator className="mt-4" />
-                        </div>
+                        </StepGuideItem>
 
-                        <div className="py-4">
-                            <h3 className="text-xl font-semibold mb-6">
-                                3. Vyplňte všechny důležité informace
-                            </h3>
+                        <StepGuideItem
+                            number="3"
+                            title="Vyplňte všechny důležité informace"
+                        >
                             <div className="space-y-6">
                                 <div>
                                     <div>
                                         <strong>Název inzerátu:</strong> Buďte
                                         konkrétní a výstižní. Místo „Prodám
-                                        telefon" napište například „iPhone 13
-                                        Pro 128GB, stříbrný, záruka".
+                                        telefon“ napište například „iPhone 13
+                                        Pro 128GB, stříbrný, záruka“.
                                     </div>
                                 </div>
 
@@ -227,34 +184,28 @@ export default function HowToAdvertisePage() {
                                     </div>
                                 </div>
                             </div>
-                            <Separator className="mt-6" />
-                        </div>
+                        </StepGuideItem>
 
-                        <div className="py-4">
-                            <h3 className="text-xl font-semibold mb-4">
-                                4. Zkontrolujte a odešlete inzerát
-                            </h3>
-                            <p className="mb-4">
+                        <StepGuideItem
+                            number="4"
+                            title="Zkontrolujte a odešlete inzerát"
+                        >
+                            <p>
                                 Před odesláním si inzerát ještě jednou přečtěte
                                 a ujistěte se, že jste na nic nezapomněli. Pokud
                                 je vše v pořádku, potvrďte odeslání. Váš inzerát
                                 bude ihned zveřejněn případným zájemcům na
                                 platformě.
                             </p>
-                            <Separator className="mt-4" />
-                        </div>
+                        </StepGuideItem>
 
-                        <div className="py-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-semibold">
-                                    5. Spravujte své inzeráty a komunikujte se
-                                    zájemci
-                                </h3>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href="/dashboard">Správa inzerátů</a>
-                                </Button>
-                            </div>
-                            <p className="mb-4">
+                        <StepGuideItem
+                            number="5"
+                            title="Spravujte své inzeráty a komunikujte se zájemci"
+                            buttonLabel="Správa inzerátů"
+                            buttonLink="/dashboard"
+                        >
+                            <p>
                                 Po vložení inzerátu můžete kdykoli upravit jeho
                                 obsah, přidat další fotografie nebo změnit cenu.
                                 V uživatelském profilu najdete přehled všech
@@ -263,13 +214,12 @@ export default function HowToAdvertisePage() {
                                 Odpovídejte rychle a vstřícně - zvyšujete tím
                                 šanci na úspěšný obchod.
                             </p>
-                            <Separator className="mt-4" />
-                        </div>
+                        </StepGuideItem>
 
-                        <div className="py-4">
-                            <h3 className="text-xl font-semibold mb-4">
-                                6. Tipy pro úspěšné inzerování
-                            </h3>
+                        <StepGuideItem
+                            number="6"
+                            title="Tipy pro úspěšné inzerování"
+                        >
                             <ul className="list-disc pl-6 space-y-2 mb-4">
                                 <li>Pište stručně, jasně a pravdivě.</li>
                                 <li>
@@ -283,13 +233,14 @@ export default function HowToAdvertisePage() {
                                     možné.
                                 </li>
                             </ul>
-                        </div>
+                        </StepGuideItem>
                     </div>
 
-                    <div className="mt-4 bg-orange-50 dark:bg-orange-900/20 p-6 rounded-lg border border-orange-200 dark:border-orange-800">
-                        <h2 className="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">
-                            Malý bonus na závěr
-                        </h2>
+                    <InfoBox
+                        title="Malý bonus na závěr"
+                        colorScheme="orange"
+                        className="mt-4"
+                    >
                         <p className="mb-0">
                             Nebojte se inzerát průběžně aktualizovat, pokud se
                             dlouho nic neděje. A hlavně - buďte trpěliví. Někdy
@@ -297,11 +248,31 @@ export default function HowToAdvertisePage() {
                             vám palce, ať se vaše věci rychle prodají a najdou
                             nové majitele!
                         </p>
-                    </div>
+                    </InfoBox>
 
+                    <InfoBox
+                        title="Bezpečné inzerování"
+                        icon={Shield}
+                        colorScheme="green"
+                        className="mt-8"
+                        buttonLabel="Přečíst více o bezpečnosti"
+                        buttonLink="/safe-advertising"
+                    >
+                        <p>
+                            Při online inzerování je důležité myslet i na
+                            bezpečnost. Přečtěte si naše tipy, jak se vyhnout
+                            podvodům a jak bezpečně nakupovat a prodávat online.
+                        </p>
+                    </InfoBox>
                     <div className="mt-10 flex justify-center">
-                        <Button size="lg" className="bg-orange-600 hover:bg-orange-700" asChild>
-                            <Link href="/classifieds/new">Vytvořit nový inzerát</Link>
+                        <Button
+                            size="lg"
+                            className="bg-orange-600 hover:bg-orange-700"
+                            asChild
+                        >
+                            <Link href="/classifieds/new">
+                                Vytvořit nový inzerát
+                            </Link>
                         </Button>
                     </div>
                 </div>

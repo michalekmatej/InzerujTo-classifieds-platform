@@ -51,6 +51,14 @@ export default function Footer() {
                                     Jak inzerovat
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    href="/safe-advertising"
+                                    className="text-muted-foreground hover:text-foreground"
+                                >
+                                    Bezpečné inzerování
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                     <div>
