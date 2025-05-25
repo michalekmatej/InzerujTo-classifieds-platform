@@ -10,8 +10,7 @@ export default function Footer() {
                             InzerujTo.cz
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                            Najděte a podávejte inzeráty snadno. Spojte se s
-                            kupci a prodejci ve vašem okolí.
+                            Prodejte nebo najděte, co potřebujete, jednoduše a bez starostí.
                         </p>
                     </div>
                     <div>
