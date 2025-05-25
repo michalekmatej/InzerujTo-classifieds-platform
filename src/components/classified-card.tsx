@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import { Heart } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -19,7 +20,7 @@ interface ClassifiedCardProps {
 }
 
 export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
-    const { id, title, price, category, location, createdAt, imageUrl } =
+    const { id, title, price, category, location, createdAt, images } =
         classified;
     const { isFavorite, toggleFavorite } = useFavorites();
     const [isHovered, setIsHovered] = useState(false);
@@ -46,7 +47,9 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                 <div className="relative aspect-square">
                     <Image
                         src={
-                            imageUrl || "/placeholder.svg?height=300&width=300"
+                            images && images[0]
+                                ? images[0].url
+                                : "/placeholder.svg?height=300&width=300"
                         }
                         alt={title}
                         fill
@@ -76,7 +79,7 @@ export default function ClassifiedCard({ classified }: ClassifiedCardProps) {
                             {title}
                         </h3>
                         <span className="whitespace-nowrap text-lg font-bold text-orange-600">
-                            {price.toLocaleString()} Kč
+                            {formatPrice(price)}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">

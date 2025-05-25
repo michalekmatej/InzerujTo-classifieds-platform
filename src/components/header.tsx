@@ -58,12 +58,18 @@ export default function Header() {
                         )}
                     </nav>
                     <div className="flex items-center gap-2">
+                        <HeaderLink
+                            href="/how-to-advertise"
+                            className="md:hidden lg:block "
+                        >
+                            Jak inzerovat
+                        </HeaderLink>
+                        <ThemeToggle />
                         {user && (
-                            <span className="text-muted-foreground text-sm md:hidden lg:block">
+                            <span className="text-muted-foreground text-sm md:hidden lg:block mr-3">
                                 {user?.name}
                             </span>
                         )}
-                        <ThemeToggle />
                         {user ? (
                             <Button variant="outline" onClick={handleSignOut}>
                                 Odhlásit se
@@ -73,7 +79,7 @@ export default function Header() {
                                 <Button
                                     onClick={handleRegister}
                                     variant={"link"}
-                                    className="text-orange-600 -ml-2"
+                                    className="text-orange-600 -ml-3"
                                 >
                                     Registrovat se
                                 </Button>
@@ -148,10 +154,17 @@ export default function Header() {
                                 Admin
                             </HeaderLink>
                         )}
+                        <HeaderLink
+                            href="/how-to-advertise"
+                            onClick={() => setIsMenuOpen(false)}
+                            mobile
+                        >
+                            Jak inzerovat
+                        </HeaderLink>
                         <div className="flex flex-col gap-2">
                             {user ? (
                                 <>
-                                    <span className="text-muted-foreground text-sm text-center mb-3">
+                                    <span className="text-muted-foreground text-sm text-center mb-3 mt-2">
                                         {user?.name}
                                     </span>
                                     <Button
@@ -192,11 +205,13 @@ const HeaderLink = ({
     children,
     onClick,
     mobile,
+    className,
 }: {
     href: string;
     children: React.ReactNode;
     onClick?: () => void;
     mobile?: boolean;
+    className?: string;
 }) => {
     return (
         <Link
@@ -205,7 +220,8 @@ const HeaderLink = ({
             className={cn(
                 !mobile
                     ? "text-sm font-medium hover:text-orange-600"
-                    : "rounded-md px-3 py-3 text-sm text-center font-medium hover:bg-accent"
+                    : "rounded-md px-3 py-3 text-sm text-center font-medium hover:bg-accent",
+                className
             )}
         >
             {children}

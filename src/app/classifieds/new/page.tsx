@@ -4,7 +4,6 @@ import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function NewClassifiedPage() {
     const user = await getCurrentUser();
-    console.log(user);
 
     // Redirect to login if not authenticated
     if (!user) {

@@ -3,6 +3,8 @@ export interface User {
     name: string;
     email: string;
     role: "user" | "admin";
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Classified {
@@ -12,10 +14,19 @@ export interface Classified {
     price: number;
     category: string;
     location: string;
-    imageUrl: string | null;
+    images: Image[];
     userId: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface Image {
+    id: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    url: string; // URL to access the image
+    isCover?: boolean; // Flag to mark the cover image
 }
 
 export interface Category {

@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import { ArrowLeft, MapPin, User } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import ClassifiedActions from "@/components/classified-actions";
 import { ClassifiedService } from "@/lib/db/models/classified";
 import { UserService } from "@/lib/db/models/user";
 import CategoryBadge from "@/components/category-badge";
+import PhotoGallery from "@/components/photo-gallery";
+import ContactSellerButton from "@/components/contact-seller-button";
 
 interface ClassifiedPageProps {
     params: {
@@ -25,6 +27,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
     const { id } = await params;
     const classified = await classifiedsService.findById(id);
 
+    console.log(classified);
     if (!classified) {
         notFound();
     }
@@ -36,7 +39,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
         category,
         location,
         createdAt,
-        imageUrl,
+        images,
         userId,
     } = classified;
 
@@ -61,17 +64,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
             </div>
 
             <div className="grid gap-8 md:grid-cols-2">
-                <div className="relative aspect-square overflow-hidden rounded-lg">
-                    <Image
-                        src={
-                            imageUrl || "/placeholder.svg?height=600&width=600"
-                        }
-                        alt={title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                </div>
+                <PhotoGallery images={images || []} title={title} />
 
                 <div className="flex flex-col">
                     <div className="mb-4 flex items-start justify-between">
@@ -91,7 +84,7 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
 
                     <div className="mb-6">
                         <span className="text-3xl font-bold text-orange-600">
-                            {price.toLocaleString()} Kč
+                            {formatPrice(price)}
                         </span>
                     </div>
 
@@ -119,9 +112,17 @@ export default async function ClassifiedPage({ params }: ClassifiedPageProps) {
 
                         <ClassifiedActions classified={classified} />
 
-                        <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                            Kontaktovat prodejce
-                        </Button>
+                        <ContactSellerButton
+                            user={
+                                user
+                                    ? {
+                                          name: user.name,
+                                          email: user.email,
+                                      }
+                                    : null
+                            }
+                            location={location}
+                        />
                     </div>
                 </div>
             </div>
