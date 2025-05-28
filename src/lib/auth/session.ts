@@ -15,6 +15,5 @@ export async function getCurrentUser(): Promise<User | null> {
         name: session.user.name || "",
         email: session.user.email || "",
         role: session.user.role as "user" | "admin",
-        // image: session.user.image || null,
     };
 }

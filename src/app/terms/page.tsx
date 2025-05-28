@@ -1,9 +1,3 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Podmínky služby | InzerujTo.cz",
-    description: "Seznamte se s podmínkami služby platformy InzerujTo.cz",
-};
 
 export default function TermsPage() {
     return (

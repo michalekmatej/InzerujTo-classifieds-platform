@@ -14,7 +14,6 @@ export function useAuth() {
               role: ((session.user.role as string) || "user") as
                   | "user"
                   | "admin",
-            //   image: session.user.image as string | null,
           }
         : null;
 

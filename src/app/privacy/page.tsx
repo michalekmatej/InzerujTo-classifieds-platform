@@ -1,11 +1,3 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Zásady ochrany osobních údajů | InzerujTo.cz",
-    description:
-        "Seznamte se se zásadami ochrany osobních údajů na platformě InzerujTo.cz",
-};
-
 export default function PrivacyPage() {
     return (
         <div className="container mx-auto px-4 py-12">

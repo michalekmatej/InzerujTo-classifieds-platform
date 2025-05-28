@@ -90,7 +90,7 @@ export default function CategoryFilter({
         );
     }
 
-    // Mobilní verze - zjednodušený seznam kategorií
+    // Mobilní verze kategorií
     if (isMobile) {
         return (
             <div className="rounded-lg border p-4">
@@ -124,7 +124,7 @@ export default function CategoryFilter({
         );
     }
 
-    // Desktop verze - původní zobrazení s možností rozbalení/sbalení
+    // Desktop verze - zobrazení s možností rozbalení/sbalení
     return (
         <div className="rounded-lg border p-4">
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>

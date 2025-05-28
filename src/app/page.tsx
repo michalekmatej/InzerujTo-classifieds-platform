@@ -89,7 +89,7 @@ export default function HomePage() {
                     </div>
                 </form>
 
-                {/* Mobilní tlačítko pro zobrazení kategorií */}
+                {/* Mobile button to toggle categories */}
                 <div className="md:hidden">
                     <Button
                         variant="outline"
@@ -117,7 +117,7 @@ export default function HomePage() {
                         </svg>
                     </Button>
 
-                    {/* Mobilní kategorie - zobrazí se pouze po kliknutí na tlačítko */}
+                    {/* Mobile categories - displayed only when the button is clicked */}
                     {showMobileCategories && (
                         <div className="mt-3">
                             <Suspense fallback={<SearchSkeleton />}>
@@ -128,14 +128,14 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr]">
-                    {/* Kategorie na desktopu - skryté na mobilních zařízeních */}
+                    {/* Desktop categories - hidden on mobile devices */}
                     <div className="hidden md:block">
                         <Suspense fallback={<SearchSkeleton />}>
                             <CategoryFilter />
                         </Suspense>
                     </div>
 
-                    {/* Seznam inzerátů - na plnou šířku */}
+                    {/* List of classifieds */}
                     <div className="col-span-1 md:col-span-1">
                         <Suspense fallback={<SearchSkeleton />}>
                             <ClassifiedsList />

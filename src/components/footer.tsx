@@ -36,14 +36,6 @@ export default function Footer() {
                             </li>
                             <li>
                                 <Link
-                                    href="/about-us"
-                                    className="text-muted-foreground hover:text-foreground"
-                                >
-                                    O platformě
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
                                     href="/how-to-advertise"
                                     className="text-muted-foreground hover:text-foreground"
                                 >

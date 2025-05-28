@@ -202,7 +202,21 @@ export class UserService {
                 .sort({ createdAt: -1 })
                 .toArray();
 
-            return users;
+            return users.map((user) => {
+                const { _id, password, ...rest } = user as any;
+                return {
+                    id: _id.toString(),
+                    ...rest,
+                    // Convert dates to strings for consistent API
+                    createdAt: rest.createdAt
+                        ? rest.createdAt.toISOString()
+                        : undefined,
+                    updatedAt: rest.updatedAt
+                        ? rest.updatedAt.toISOString()
+                        : undefined,
+                    // Don't return password hash
+                };
+            });
         } catch (error) {
             console.error("Error listing users:", error);
             return [];

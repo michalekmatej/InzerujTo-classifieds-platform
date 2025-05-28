@@ -16,23 +16,27 @@ export async function GET() {
         }
 
         // Get services
-        const userService = await UserService.getInstance();
-        const classifiedService = await ClassifiedService.getInstance();
+        const [userService, classifiedService] = await Promise.all([
+            UserService.getInstance(),
+            ClassifiedService.getInstance(),
+        ]);
 
-        // Get statistics
-        const [userCount, adminCount, classifiedCount, categoriesWithCounts] =
-            await Promise.all([
-                userService.countUsers(),
-                userService.countUsersByRole("admin"),
-                classifiedService.countClassifieds({}),
-                classifiedService.getCategoriesWithCounts(),
-            ]);
-
-        // Get recent items
-        const recentClassifieds = await classifiedService.getRecentClassifieds(
-            5
-        );
-        const recentUsers = await userService.getRecentUsers(5);
+        // Fetch statistics and recent items in parallel
+        const [
+            userCount,
+            adminCount,
+            classifiedCount,
+            categoriesWithCounts,
+            recentClassifieds,
+            recentUsers,
+        ] = await Promise.all([
+            userService.countUsers(),
+            userService.countUsersByRole("admin"),
+            classifiedService.countClassifieds({}),
+            classifiedService.getCategoriesWithCounts(),
+            classifiedService.getRecentClassifieds(5),
+            userService.getRecentUsers(5),
+        ]);
 
         return NextResponse.json(
             {
